@@ -26,7 +26,7 @@ Where to get inspiration and existing knowledge from:
 - You can search for Space Engineers plugin projects on GitHub (their source code is public) for inspiration or ideas about how to solve specific issues.
 - Be careful with any information before 2019, because the game's code had been changing a lot before that year, making most information older than that unusable.
 - The Programmable Block API and Mod API have been pretty stable but slowly changing, including the removal of some features.
-- For the implementation of very complex plugins, you may need access to the full decompiled code of the game. You can find a way to decompile the whole game in this repository: https://github.com/viktor-ferenczi/se-dotnet-game
+- For the implementation of very complex plugins, you may need access to the full decompiled code of the game. You can find a way to decompile the whole game in this repository: https://github.com/CometWorks/skills2
 - If in doubt, ask for the relevant decompiled game code. ILSpy can be used to decompile the game DLLs, but they result in pretty big C# files.
 - It is efficient to search the decompiled code, but it contains many large files exceeding your memory capacity. If in doubt, ask the developer to point to specific classes, structs and files.
 - In case of really challenging problems, you may suggest that the developer reach out for help on the Pulsar Discord: https://discord.gg/z8ZczP2YZY

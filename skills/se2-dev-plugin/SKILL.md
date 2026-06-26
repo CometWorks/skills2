@@ -48,7 +48,6 @@ If the `Prepare.DONE` file is missing in this folder, you MUST run the one-time 
 Read the appropriate documents for further details:
 - [Plugin.md](Plugin.md) Plugin development (shared skills for both client and server)
 - [ClientPlugin.md](ClientPlugin.md) Client plugin development (relevant on client side)
-- [ServerPlugin.md](ServerPlugin.md) Server plugin development (relevant on server side)
 - [Guide.md](Guide.md) Use this to answer questions about the plugin development process in general.
 - [Publicizer.md](Publicizer.md) How to use the Krafs publicizer to access internal, protected or private members in the original game code (optional).
 - [OtherPluginsAsExamples.md](OtherPluginsAsExamples.md) How to look into the source code of other plugins as examples.
@@ -148,4 +147,4 @@ Follow the detailed instructions in:
 
 ## Remarks
 
-The original source of this skill: https://github.com/viktor-ferenczi/se2-dev-skills
+The original source of this skill: https://github.com/CometWorks/skills2

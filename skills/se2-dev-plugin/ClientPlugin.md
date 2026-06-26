@@ -17,4 +17,4 @@ Folder structure of a client-only plugin:
 - `ClientPlugin/Patches`: Use this folder and namespace to host the Harmony patches.
 
 References:
-- [Client plugin template](https://github.com/viktor-ferenczi/se2-client-plugin-template) Template repository to start a new project.
+- [Client plugin template](https://github.com/CometWorks/client2-plugin-template) Template repository to start a new project.

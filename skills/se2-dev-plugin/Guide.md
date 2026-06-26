@@ -5,7 +5,7 @@ This guide was made for human plugin developers.
 ## Start with a template
 Choose one of these templates and click on the green "Use this template" button on GitHub to make your own repo, then clone that repo.
 
-- Client plugin template: https://github.com/viktor-ferenczi/se2-client-plugin-template
+- Client plugin template: https://github.com/CometWorks/client2-plugin-template
 
 **Please follow the `README` after cloning your plugin project locally.**
 

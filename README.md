@@ -24,7 +24,7 @@ This usually happens if the skills are linked (via `mklink`) into the coding age
 
 The simplest option is to use skills.sh, if you have Node.js installed (which provides `npx` on `PATH`):
 
-`npx skills add viktor-ferenczi/se2-dev-skills`
+`npx skills add CometWorks/skills2`
 
 Follow the wizard. Later you can update them with: `npx skills update`
 
