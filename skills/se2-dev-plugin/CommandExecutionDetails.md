@@ -1,6 +1,13 @@
 # Command Execution - Detailed Guide
 
-This document provides comprehensive details about command execution on Windows for the se2-dev-plugin skill. For most use cases, refer to the Quick Start section in [CommandExecution.md](CommandExecution.md).
+This document provides comprehensive details about command execution for the se2-dev-plugin skill. For most use cases, refer to the Quick Start section in [CommandExecution.md](CommandExecution.md).
+
+> **Linux users:** Most of this document is about the peculiarities of the
+> Windows shells (BusyBox, CMD, PowerShell). On Linux it is much simpler —
+> use your native shell directly with normal POSIX paths, run the preparation
+> with `./prepare.sh`, and skip every BusyBox/CMD/PowerShell/backslash-path
+> caveat below. The `uv run ...` commands and the `workdir` guidance apply on
+> every platform.
 
 ## Recommended Approach
 

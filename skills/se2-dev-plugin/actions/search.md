@@ -35,13 +35,15 @@ uv run download_plugin_source.py author-github-username/PluginName
 uv run download_plugin_source.py PluginName
 ```
 
-Plugin sources are downloaded to `Data\Sources\<PluginName>` (where `Data\`
-is a junction to `%USERPROFILE%\.se2-dev\plugin\` set up by `Prepare.bat`).
-The destination can be overridden via the `SE_PLUGIN_DOWNLOAD_FOLDER`
-environment variable or a `plugin_download_folder:` entry in
-`CLAUDE.md` / `AGENTS.md` in the current working directory.
+Plugin sources are downloaded to `Data/Sources/<PluginName>` (where `Data/`
+is a junction (Windows) / symlink (Linux) to the per-user data folder —
+`%USERPROFILE%\.se2-dev\plugin\` on Windows, `~/.se2-dev/plugin/` on
+Linux — set up by the preparation script). The destination can be
+overridden via the `SE_PLUGIN_DOWNLOAD_FOLDER` environment variable or a
+`plugin_download_folder:` entry in `CLAUDE.md` / `AGENTS.md` in the current
+working directory.
 
-`Prepare.bat` requires `git` on `PATH`, so each plugin is `git clone`d at the
+Preparation requires `git` on `PATH`, so each plugin is `git clone`d at the
 commit recorded in its PluginHub XML and can later be updated in place with
 `git pull` (or by re-running `download_plugin_source.py`). Both the commit
 registered in PluginHub and the commit actually checked out locally are

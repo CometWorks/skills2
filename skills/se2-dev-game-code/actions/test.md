@@ -2,19 +2,27 @@
 
 > **Part of the se2-dev-game-code skill.** Invoked to run game code search tests and verify results.
 
-Run `test_search_game_code.bat` to verify the game code search functionality is working correctly.
+Run `test_search_game_code.bat` (Windows) or `./test_search_game_code.sh` (Linux) to verify the game code search functionality is working correctly.
 
 ## Running Tests
 
 From this skill folder, run:
 
-```cmd
+```bash
+# Linux
+./test_search_game_code.sh
+
+# Windows
 .\test_search_game_code.bat
 ```
 
 Or redirect output to a file for review:
 
-```cmd
+```bash
+# Linux
+./test_search_game_code.sh > test_results.txt 2>&1
+
+# Windows
 .\test_search_game_code.bat > test_results.txt 2>&1
 ```
 
@@ -78,10 +86,10 @@ uv run search_game_code.py -c class usage Entity
 
 If tests fail:
 
-1. **Preparation not complete** - Run `.\Prepare.bat` first
+1. **Preparation not complete** - Run `./prepare.sh` (Linux) or `.\Prepare.bat` (Windows) first
 2. **Index not built** - Check that `Data/CodeIndex/` exists and contains `.csv` files
 3. **Decompiled folder missing** - Verify `Data/Decompiled/` has `.cs` files
 4. **Python environment issues** - Try `uv sync` to reinstall dependencies
 
-As a last resort, you can force repeating the whole preparation process by running `.\Clean.bat`, then `.\Prepare.bat`.
+As a last resort, you can force repeating the whole preparation process by running the clean then prepare scripts: `./clean.sh` then `./prepare.sh` (Linux), or `.\Clean.bat` then `.\Prepare.bat` (Windows).
 Notify the user if you do this, because the preparation may take 5-15 minutes to complete depending on the hardware.

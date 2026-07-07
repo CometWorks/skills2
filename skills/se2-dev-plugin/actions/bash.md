@@ -6,7 +6,15 @@
 
 ## Quick Reference
 
-Run UNIX-like commands using `busybox.exe` as a prefix:
+**Linux** — run UNIX commands directly with the native shell:
+
+```bash
+grep -r "pattern" folder
+find . -name "*.cs"
+cat file.txt
+```
+
+**Windows** — run the same commands using `busybox.exe` as a prefix:
 
 ```bash
 busybox.exe grep -r "pattern" folder
@@ -16,9 +24,10 @@ busybox.exe cat file.txt
 
 ## Critical Rules (Summary)
 
-1. **ALWAYS use forward slashes (`/`) in paths** when using busybox
+1. **On Windows, ALWAYS use forward slashes (`/`) in paths** when using busybox
    - ✅ Correct: `busybox.exe grep "pattern" C:/Users/name/folder`
    - ❌ Wrong: `busybox.exe grep "pattern" C:\Users\name\folder`
+   - On Linux use normal POSIX paths (`~/...`, `/home/...`).
 
 2. **Use the skill folder as working directory**
    - Best approach: Use the `workdir` parameter in your bash tool
@@ -28,9 +37,9 @@ busybox.exe cat file.txt
 
 4. **Windows accepts forward slashes natively** - This works everywhere on Windows
 
-## Alternative: Use PowerShell
+## Alternative: Use PowerShell (Windows only)
 
-If busybox doesn't work for a specific task, use PowerShell instead:
+If busybox doesn't work for a specific task on Windows, use PowerShell instead:
 
 ```powershell
 Get-ChildItem -Recurse -Filter "*.cs" | Select-String "pattern"
@@ -45,7 +54,8 @@ For detailed examples, troubleshooting, and best practices, see:
 
 ## Available Commands
 
-BusyBox provides many standard UNIX utilities including:
+The standard UNIX utilities are available on every platform (natively on
+Linux, via BusyBox on Windows):
 - `grep` - Search file contents
 - `find` - Find files by name/pattern
 - `cat`, `head`, `tail` - View file contents
@@ -54,7 +64,7 @@ BusyBox provides many standard UNIX utilities including:
 - `wc` - Word/line counting
 - And many more
 
-Run `busybox.exe --list` to see all available commands.
+On Windows, run `busybox.exe --list` to see all available BusyBox commands.
 
 ## Python Virtual Environment
 

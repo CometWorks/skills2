@@ -1,5 +1,7 @@
 #!/bin/bash
-# run_prepare.sh - Wrapper to run Prepare.bat correctly from any shell
+# run_prepare.sh - Cross-platform wrapper that runs the correct preparation
+# script for the current OS: prepare.sh on Linux, Prepare.bat (via cmd)
+# on Windows shells such as Git Bash.
 
 set -e  # Exit on error
 
@@ -13,18 +15,27 @@ if [ -f "Prepare.DONE" ]; then
     exit 0
 fi
 
-echo "Starting preparation... This may take 5-15 minutes."
+echo "Starting preparation... This may take about a minute."
 echo "---"
 
-# Run Prepare.bat using full path (works from any shell on Windows)
-if cmd //c "$SCRIPT_DIR/Prepare.bat" >Prepare.log 2>&1; then
+case "$(uname -s 2>/dev/null || echo unknown)" in
+    Linux)
+        run_prep() { ./prepare.sh; }
+        ;;
+    *)
+        # Windows (Git Bash / MSYS / Cygwin): run the batch file through cmd.
+        run_prep() { cmd //c "$SCRIPT_DIR/Prepare.bat"; }
+        ;;
+esac
+
+if run_prep >Prepare.log 2>&1; then
     if [ -f "Prepare.DONE" ]; then
         echo "---"
         echo "✓ Preparation completed successfully"
         echo ""
         echo "You can now use the skill features:"
-        echo "  - Run code searches: uv run search_game_code.py --help"
-        echo "  - Test the skill: ./test_search_game_code.bat"
+        echo "  - List plugins:   uv run list_plugins.py"
+        echo "  - Search code:    uv run search_plugin_code.py --help"
         exit 0
     else
         echo "---"
@@ -36,7 +47,7 @@ if cmd //c "$SCRIPT_DIR/Prepare.bat" >Prepare.log 2>&1; then
     fi
 else
     echo "---"
-    echo "✗ Prepare.bat execution failed"
+    echo "✗ Preparation execution failed"
     echo ""
     echo "Check Prepare.log for details:"
     tail -20 Prepare.log

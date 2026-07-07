@@ -215,6 +215,10 @@ __marimo__/
 Prepare.DONE
 busybox.exe
 version_check.txt
-/skills/se2-dev-game-code/Game2/
-/skills/se2-dev-game-code/Data/
+Prepare.log
+Decompile.log
+# No trailing slash so these match both a Windows junction (a directory) and a
+# Linux/macOS symlink (which git treats as a file, not a directory).
+/skills/se2-dev-game-code/Game2
+/skills/se2-dev-game-code/Data
 /skills/se2-dev-plugin/Data

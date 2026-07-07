@@ -59,10 +59,12 @@ then the `Id`) field will tell you the GitHub repository ID of the plugin.
 
 ## Plugin Storage
 
-Plugin sources are downloaded to `Data\Sources\<PluginName>\` by default.
-`Data\` is a junction created by `Prepare.bat` that points at the per-user
-profile folder `%USERPROFILE%\.se2-dev\plugin\`, so downloads persist across
-re-installs and `Clean.bat` runs.
+Plugin sources are downloaded to `Data/Sources/<PluginName>/` by default.
+`Data/` is a junction (Windows) or symlink (Linux) created by the
+preparation script that points at the per-user data folder
+(`%USERPROFILE%\.se2-dev\plugin\` on Windows, `~/.se2-dev/plugin/` on
+Linux), so downloads persist across re-installs and `Clean.bat`/`clean.sh`
+runs.
 
 You can override the sources directory by:
 1. Setting the `SE_PLUGIN_DOWNLOAD_FOLDER` environment variable
@@ -70,7 +72,7 @@ You can override the sources directory by:
 
 The `download_plugin_source.py` script handles this automatically.
 
-`Prepare.bat` requires `git` on `PATH`, so plugins are `git clone`d at the
+Preparation requires `git` on `PATH`, so plugins are `git clone`d at the
 commit recorded in the PluginHub XML and can be updated in place later with
 `git pull`. Both the listed and downloaded commit hashes are recorded in
 `Data\plugins.json` for later comparison.

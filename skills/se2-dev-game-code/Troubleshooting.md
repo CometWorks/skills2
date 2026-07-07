@@ -31,7 +31,7 @@ This guide helps you resolve common issues when searching game code.
 4. **Index not built yet**:
    - Check if `Data/CodeIndex/` exists (the `Data` junction must be present in the skill folder)
    - If missing, preparation didn't complete successfully
-   - Re-run `./Prepare.bat` from the skill directory
+   - Re-run the preparation from the skill directory (`./prepare.sh` on Linux, `.\Prepare.bat` on Windows)
 
 ### Debugging Strategy
 
@@ -107,10 +107,11 @@ If searches return unexpected results or after game updates:
 rm -rf Data/CodeIndex/
 
 # Re-run preparation (this will rebuild the index)
-./Prepare.bat
+./prepare.sh      # Linux
+.\Prepare.bat     # Windows
 ```
 
-`Prepare.bat` also detects game updates automatically: if the binaries' version
+Preparation also detects game updates automatically: if the binaries' version
 differs from `Data/game_version.txt`, the `Decompiled/`, `Content/` and
 `CodeIndex/` folders are wiped and rebuilt. Earlier decompiled versions remain
 available in the local Git history under `Data/.git/`.

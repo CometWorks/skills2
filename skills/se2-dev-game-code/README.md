@@ -4,8 +4,10 @@ This skill provides access to decompiled C# source code from Space Engineers 2, 
 
 ## Overview
 
-The skill maintains the following data under the `Data` junction (which points
-to `%USERPROFILE%\.se2-dev\game-code\`):
+The skill maintains the following data under the `Data` junction (Windows) or
+symlink (Linux), which points to the per-user data folder
+(`%USERPROFILE%\.se2-dev\game-code\` on Windows, `~/.se2-dev/game-code/` on
+Linux):
 
 - **Data/Decompiled/** - Full decompiled C# source organized by assembly
 - **Data/Content/** - Game content files (definitions, translations)
@@ -23,8 +25,8 @@ Run the preparation steps in `Prepare.md` if `Prepare.DONE` is missing. This req
 - The .NET SDK (for `ilspycmd`)
 
 Preparation will:
-1. Create the `Data` junction and the local Git repository inside it (with an
-   initial commit of `.gitignore`)
+1. Create the `Data` junction/symlink and the local Git repository inside it
+   (with an initial commit of `.gitignore`)
 2. Detect the current game version by inspecting the binaries
 3. Wipe `Decompiled/`, `Content/` and `CodeIndex/` if the version differs from
    the recorded one
@@ -218,9 +220,15 @@ uv run search_game_code.py method signature GetPosition
 
 ## Direct grep Search
 
-For simple lookups, direct grep can be faster:
+For simple lookups, direct grep can be faster (use `grep` directly on
+Linux, or `busybox.exe grep` on Windows):
 
 ```
+# Linux
+grep ",MyBlock," Data/CodeIndex/class_declarations.csv
+grep ",GetPosition," Data/CodeIndex/method_usages.csv
+
+# Windows
 busybox.exe grep ",MyBlock," Data/CodeIndex/class_declarations.csv
 busybox.exe grep ",GetPosition," Data/CodeIndex/method_usages.csv
 ```
@@ -256,12 +264,18 @@ The first folder in the path indicates the assembly (DLL) containing the code.
 | `VRage.UI` | User interface framework |
 | `VRage.Scripting` | Scripting support |
 
-## Windows Command Line
+## Command Line
 
-All commands run on Windows. Use `busybox.exe` for UNIX-like commands with forward slashes in paths:
+On Linux use the native shell directly:
+
+```
+grep "pattern" Data/CodeIndex/class_declarations.csv
+```
+
+On Windows use `busybox.exe` for UNIX-like commands, with forward slashes in paths:
 
 ```
 busybox.exe grep "pattern" Data/CodeIndex/class_declarations.csv
 ```
 
-Use `uv run` to execute Python scripts with the virtual environment.
+Use `uv run` to execute Python scripts with the virtual environment on every platform.
