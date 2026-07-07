@@ -2,7 +2,7 @@
 name: se2-dev-game-code
 description: Allows reading the decompiled C# code of Space Engineers 2
 license: MIT
-allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
+allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*test_graphify_game_code*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
 # SE2 Game Code Search Skill
@@ -83,6 +83,28 @@ This means:
 - This makes it easy to **update plugins for compatibility with new game releases**: diff the relevant source between two commits inside `Data/` to see exactly what changed.
 
 The repository uses an internal author/email (`se2-dev-skills@localhost`) so commits work even on machines without a configured global Git identity.
+
+## Graphify Graph (optional)
+
+Preparation can build a separate Graphify graph for the decompiled game code under
+`Data/Decompiled` (or `SE2_DEV_GAME_CODE_GRAPH_ROOT`). It is a navigable map of
+call/inherit/reference edges plus clustered communities that answers *structural*
+questions the CSV code index cannot. Prepare installs Graphify on **Python 3.12 with the
+fast native Rust Leiden clustering backend** and, when that backend is available (needs
+`uv`), builds the graph **automatically** in ~1-2 minutes. Where the fast backend cannot be
+provisioned it falls back to slow single-core clustering (~10-30 minutes) and stays
+**opt-in** with `SE2_DEV_GRAPHIFY=1` (ask the user first); `SE2_DEV_GRAPHIFY=0` disables it.
+Read these on demand — skip them for normal search work:
+
+- Build / health-check / rebuild: [GraphifyPrepare.md](GraphifyPrepare.md)
+- Query an existing graph: [GraphifyUsage.md](GraphifyUsage.md)
+
+Health check and query test (only meaningful once a graph is built):
+
+```bash
+bash graphify_check.sh Data/Decompiled --deep   # is the graph usable?
+./test_graphify_game_code.sh                     # run a few graph queries
+```
 
 ## Essential Documentation
 

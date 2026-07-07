@@ -2,7 +2,7 @@
 name: se2-dev-plugin
 description: Plugin development for Space Engineers 2. Search plugin code from PluginHub-SE2 for examples and patterns.
 license: MIT
-allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*dotnet build*), Bash(*dotnet clean*), Bash(*uv run search_plugin_code.py *), Bash(*uv run index_plugin_code.py*), Bash(*uv run list_plugins.py*), Bash(*uv run download_plugin_source.py *), Bash(*uv run download_pluginhub.py*), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
+allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*dotnet build*), Bash(*dotnet clean*), Bash(*uv run search_plugin_code.py *), Bash(*uv run index_plugin_code.py*), Bash(*uv run list_plugins.py*), Bash(*uv run download_plugin_source.py *), Bash(*uv run download_pluginhub.py*), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
 # SE2 Plugin Development Skill
@@ -137,6 +137,19 @@ into its own `Data/Sources/<PluginName>/` directory. Re-running it does
 a `git pull`. The commit hashes above are recorded in `plugins.json`.
 
 See [search action](./actions/search.md) for complete documentation.
+
+## Graphify Graph (optional)
+
+Preparation can build a separate Graphify graph for the downloaded plugin sources under
+`Data/Sources` (or `SE2_DEV_PLUGIN_PROJECT_ROOT`). It is a navigable map of
+call/inherit/reference edges plus clustered communities that answers *structural* questions
+the CSV code index cannot. With the fast Rust clustering backend (Python 3.12 via `uv`,
+provisioned automatically) prepare builds it **automatically**; this corpus is small so it
+is quick either way. Where the fast backend is unavailable it stays **opt-in** with
+`SE2_DEV_GRAPHIFY=1`; `SE2_DEV_GRAPHIFY=0` disables it. Read on demand — skip for normal
+search work: build via [GraphifyPrepare.md](GraphifyPrepare.md), query via
+[GraphifyUsage.md](GraphifyUsage.md). Check a built graph with
+`bash graphify_check.sh Data/Sources --deep`.
 
 ## Action References
 

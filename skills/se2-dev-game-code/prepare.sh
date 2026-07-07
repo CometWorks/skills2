@@ -11,6 +11,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./common_posix.sh
 source "$SCRIPT_DIR/common_posix.sh"
+# shellcheck source=./graphify_prepare.sh
+source "$SCRIPT_DIR/graphify_prepare.sh"
 
 cd "$SCRIPT_DIR"
 
@@ -116,6 +118,12 @@ if [ ! -f Data/CodeIndex/content_index.csv ]; then
     log "Indexing content files"
     uv run python -u index_content.py Data/Content Data/Decompiled Data/CodeIndex
 fi
+
+# 11. Optionally build the Graphify graph for the decompiled game code. Auto-builds
+#     with the fast Rust backend; otherwise stays opt-in (SE2_DEV_GRAPHIFY=1). This
+#     is supplemental — a failure here never fails the core preparation.
+GAME_CODE_GRAPH_ROOT="${SE2_DEV_GAME_CODE_GRAPH_ROOT:-Data/Decompiled}"
+se2_dev_graphify_prepare "se2-dev-game-code" "$GAME_CODE_GRAPH_ROOT"
 
 : >Prepare.DONE
 log "DONE"

@@ -218,6 +218,16 @@ uv run python -u index_content.py Data\Content Data\Decompiled Data\CodeIndex
 if %ERRORLEVEL% NEQ 0 goto failed
 :skip_content_index
 
+:: 17. Optionally build the Graphify graph for the decompiled game code. Auto-builds
+::     with the fast Rust backend; otherwise stays opt-in (SE2_DEV_GRAPHIFY=1). This
+::     is supplemental - a failure here never fails the core preparation.
+if defined SE2_DEV_GAME_CODE_GRAPH_ROOT (
+    set "GAME_CODE_GRAPH_ROOT=%SE2_DEV_GAME_CODE_GRAPH_ROOT%"
+) else (
+    set "GAME_CODE_GRAPH_ROOT=%CD%\Data\Decompiled"
+)
+call "%~dp0GraphifyPrepare.bat" "se2-dev-game-code" "%GAME_CODE_GRAPH_ROOT%"
+
 echo DONE
 del version_check.txt 2>NUL
 del "\\?\%cd%\nul" 2>error.txt

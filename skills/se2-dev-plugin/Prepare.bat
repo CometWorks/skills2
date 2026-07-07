@@ -84,6 +84,16 @@ echo Indexing plugin code (skipped if no sources downloaded yet)
 uv run index_plugin_code.py
 if %ERRORLEVEL% NEQ 0 goto failed
 
+:: 10. Optionally build the Graphify graph for the downloaded plugin sources. Auto-builds
+::     with the fast Rust backend; otherwise stays opt-in (SE2_DEV_GRAPHIFY=1). This is
+::     supplemental - a failure here never fails the core preparation.
+if defined SE2_DEV_PLUGIN_PROJECT_ROOT (
+    set "PLUGIN_GRAPH_ROOT=%SE2_DEV_PLUGIN_PROJECT_ROOT%"
+) else (
+    set "PLUGIN_GRAPH_ROOT=%CD%\Data\Sources"
+)
+call "%~dp0GraphifyPrepare.bat" "se2-dev-plugin" "%PLUGIN_GRAPH_ROOT%"
+
 echo DONE
 echo DONE >Prepare.DONE
 exit /b 0

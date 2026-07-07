@@ -12,6 +12,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./common_posix.sh
 source "$SCRIPT_DIR/common_posix.sh"
+# shellcheck source=./graphify_prepare.sh
+source "$SCRIPT_DIR/graphify_prepare.sh"
 
 cd "$SCRIPT_DIR"
 
@@ -37,6 +39,12 @@ uv run download_pluginhub.py
 # 4. Index any plugin sources already downloaded under Data/Sources.
 log "Indexing plugin code (skipped if no sources downloaded yet)"
 uv run index_plugin_code.py
+
+# 5. Optionally build the Graphify graph for the downloaded plugin sources. Auto-builds
+#    with the fast Rust backend; otherwise stays opt-in (SE2_DEV_GRAPHIFY=1). This is
+#    supplemental — a failure here never fails the core preparation.
+PLUGIN_GRAPH_ROOT="${SE2_DEV_PLUGIN_PROJECT_ROOT:-Data/Sources}"
+se2_dev_graphify_prepare "se2-dev-plugin" "$PLUGIN_GRAPH_ROOT"
 
 : >Prepare.DONE
 log "DONE"

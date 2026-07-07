@@ -1,0 +1,180 @@
+# Prepare-Time Graphify Graph
+
+> Read this only when the user wants the Graphify graph. It is not needed for
+> normal code-search work, so it stays out of context until it is actually
+> relevant. For querying an existing graph see [GraphifyUsage.md](GraphifyUsage.md).
+
+The `prepare.sh` / `Prepare.bat` script can build a [Graphify](https://pypi.org/project/graphifyy/)
+graph for the decompiled game code it prepares. The graph is a navigable map (call/inherit/reference
+edges plus LLM-named communities) beside the regular search indexes.
+
+## Fast clustering vs. the slow fallback
+
+Building a graph is cheap **except for clustering** (community detection), which is the
+long pole on the big game corpus. Graphify has two clustering backends:
+
+- **Fast — native Rust Leiden** (`graspologic`, which needs **Python < 3.13**; we use
+  3.12). Runs the whole game corpus in ~1-2 minutes.
+- **Slow — pure-Python Louvain fallback**, used automatically when `graspologic` is not
+  importable (e.g. Graphify installed on Python 3.13, where `graspologic` has no wheel).
+  It is **single-core** and adds ~10-30 minutes on the ~220k-node game graph.
+
+The skill's own `.venv` stays on Python 3.13; this Python 3.12 pin applies only to the
+separately-installed `graphify` tool. Prepare defaults that tool to **Python 3.12 with the
+`leiden` extra** and picks its behaviour from which backend is available:
+
+- **Fast backend available** (Linux/Windows with `uv`): prepare **provisions it and builds
+  the graph automatically** — no opt-in needed. Because `uv` can fetch Python 3.12 and the
+  `graspologic` wheels on demand, this is the normal case.
+- **Fast backend cannot be provisioned** (no `uv`, no Python 3.12, or `graspologic` will
+  not import): Graphify stays **optional and off**. Prepare skips it and reports the time
+  the slow fallback would cost; build anyway by opting in with `SE2_DEV_GRAPHIFY=1`.
+
+`SE2_DEV_GRAPHIFY` is a tri-state override:
+
+| Value | Effect |
+|-------|--------|
+| unset | **auto** — build when the fast Rust backend is available, skip otherwise |
+| `1`   | **always build**, even on the slow single-core fallback (~10-30 min) |
+| `0`   | **never build** — disable Graphify entirely |
+
+The one-time provisioning of the fast backend (uv fetching Python 3.12 + `graspologic`)
+takes ~30-60 seconds and is logged. To pin a different interpreter, set
+`SE2_DEV_GRAPHIFY_PYTHON` (default `3.12`); it must be `< 3.13` for the fast backend.
+
+## Asking the user
+
+On the fast path the graph builds automatically as part of prepare, so there is nothing to
+ask — just mention it will be built.
+
+Only when the fast backend is **unavailable** does the cost become significant. In that case
+the first time the corpus is prepared the skill should **ask the user whether to build
+the graph on the slow fallback**, stating the expected extra time (see the
+[Build time](#build-time) table), and only opt in (`SE2_DEV_GRAPHIFY=1`) if they agree.
+Skipping costs nothing later — it can be built on a subsequent prepare run at any time.
+
+## Installation
+
+Prepare installs Graphify automatically through `uv` when the fast backend is available. To
+install it manually, use the **fast** form (Python 3.12 + `leiden` extra):
+
+```bash
+# Recommended; uv fetches Python 3.12 and puts graphify on PATH automatically
+uv tool install --python 3.12 'graphifyy[leiden]'
+
+# Alternatives (the leiden extra is only fast on Python 3.12)
+pipx install --python python3.12 'graphifyy[leiden]'
+pip install 'graphifyy[leiden]'          # run under a Python 3.12 interpreter
+
+# Then install Graphify integration for the active AI platform
+graphify install --platform [AI PLATFORM]
+```
+
+Installing plain `graphifyy` (no `leiden` extra) or under Python 3.13 gets the slow
+single-core clustering fallback.
+
+Set `SE2_DEV_GRAPHIFY_PLATFORM` before prepare to run the platform install automatically
+after the package is installed:
+
+```bash
+export SE2_DEV_GRAPHIFY_PLATFORM=codex     # Linux
+```
+
+```bat
+set SE2_DEV_GRAPHIFY_PLATFORM=codex        REM Windows
+```
+
+## Graph root
+
+Prepare builds the graph under the graph root's own `graphify-out/` directory:
+
+| Default graph root | Override |
+|--------------------|----------|
+| decompiled game code (`Data/Decompiled`) | `SE2_DEV_GAME_CODE_GRAPH_ROOT` |
+
+Use the override variable when the skill should graph a specific active project instead of
+the default prepared corpus.
+
+## Build time
+
+The Graphify step runs on top of the normal prepare time. Rough numbers:
+
+- **First-ever install on a machine**: a one-time ~30-60 second provisioning (Graphify
+  plus Python 3.12, the Rust `graspologic` clustering backend, tree-sitter and numpy).
+- **First graph build** (`graphify <root>`): scales with corpus size; clustering dominates.
+- **Later runs** (`graphify <root> --update`): incremental re-extraction of changed code
+  files only, usually much faster; no LLM needed.
+
+| Corpus size | Added build time — fast (Rust Leiden) | Added build time — slow fallback |
+|-------------|----------------------------------------|----------------------------------|
+| ~10,000 decompiled `.cs` files (~220k-node graph) | ~1-2 minutes | ~10-30 minutes |
+
+On the slow fallback the graph build for the decompiled game corpus can take as long as, or
+longer than, the decompilation itself — which is why that path is opt-in. The fast Rust
+backend removes that cost, so on a machine with `uv` the graph is built automatically.
+
+## Disk space
+
+The graph output is large: `graphify-out/` holds `graph.json`, the clustering analysis and
+a semantic cache, and together they run roughly **9x the source corpus size**. For the
+decompiled game code that is on the order of **1.5 GB**.
+
+On Windows, prepare runs a **disk pre-check** right before building: it requires roughly
+`12 x corpus size + 1 GiB` of free space on the graph volume (headroom over the observed
+footprint plus room for the code base to grow). If there is not enough free space it logs
+how much is needed versus available and **skips the graph build** — core preparation
+(decompilation and indexing) has already succeeded, so prepare still finishes. Free up
+space and re-run prepare to build the graph later.
+
+## Health check and rebuild
+
+A graph is only usable once **clustering** finishes. Clustering writes
+`graphify-out/.graphify_analysis.json`; without it every node has an empty community and
+queries return little useful structure. A build that is killed part-way leaves a
+`graph.json` with no clustering — an **incomplete, unusable** graph. (The fast backend makes
+this far less likely, since clustering the big corpus now takes only a minute or two.)
+
+Prepare guards against this automatically: it inspects an existing graph and, if it finds
+`graph.json` but no clustering, it **cleans `graphify-out/` and rebuilds from scratch**
+rather than `--update`-ing a broken graph.
+
+To check a graph's health independently, run the standalone checker:
+
+```bash
+# Linux (from the skill folder)
+bash graphify_check.sh Data/Decompiled          # fast: file presence
+bash graphify_check.sh Data/Decompiled --deep   # also validates clustering content
+```
+
+```bat
+REM Windows
+call GraphifyCheck.bat Data\Decompiled
+```
+
+Exit codes: `0` ok, `2` missing (never built), `3` incomplete (must be rebuilt). If it
+reports `incomplete` or `missing` and you want the graph, delete `graphify-out/` and re-run
+prepare — it rebuilds automatically with the fast Rust backend. On a machine without that
+backend the rebuild uses the slow fallback (~10-30 min for game code) and must be opted in
+with `SE2_DEV_GRAPHIFY=1`; **confirm with the user first** in that case.
+
+## Corpus content and API keys
+
+Graphify builds a **code-only** graph with no API key. It treats `.md`, `.txt`, `.rst`,
+`.yaml`, `.yml`, `.html` and similar files as *documents* that need LLM-based semantic
+extraction, and the build fails if any are present and no key (`ANTHROPIC_API_KEY`,
+`GEMINI_API_KEY`, …) is set. The decompiled game corpus is pure `.cs`/`.il` and builds
+keyless. To graph only the code in a mixed corpus without a key, add a `.graphifyignore`
+(gitignore syntax) at the graph root excluding the doc extensions.
+
+## Failure behavior
+
+Graphify is supplemental. Prepare logs a warning and continues if:
+
+- Graphify is disabled (`SE2_DEV_GRAPHIFY=0`),
+- the fast backend is unavailable and the user did not opt in (`SE2_DEV_GRAPHIFY` not `1`),
+- the user declines installation on the slow-fallback path,
+- `graphify` is not on `PATH` after installation,
+- the selected graph root does not exist,
+- graph creation or update fails.
+
+Core preparation still succeeds when indexing and decompilation succeed.
