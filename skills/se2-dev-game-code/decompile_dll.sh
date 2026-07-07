@@ -11,6 +11,11 @@
 export DOTNET_Thread_DefaultStackSize=1000000
 export COMPlus_Thread_DefaultStackSize=1000000
 
+# ilspycmd executable. On Windows it is a global dotnet tool on PATH; on
+# Linux prepare.sh may install it into a per-user tool-path and export
+# ILSPYCMD with the absolute path. Fall back to the bare name otherwise.
+ILSPYCMD="${ILSPYCMD:-ilspycmd}"
+
 OUT="Data/Decompiled/$1"
 
 echo "Decompiling: $1"
@@ -41,7 +46,7 @@ fi
 #     (e.g. Keen.VRage.Platform.Windows.Forms.ClipboardHelper.RunAsync).
 #     Async methods will appear as their underlying state machines.
 # Both losses are acceptable for read-only browsing/indexing.
-ilspycmd --project --nested-directories --referencepath Game2 --languageversion CSharp14_0 --disable-updatecheck -ds Deconstruction=false -ds AsyncAwait=false -o "$OUT" "$2"
+"$ILSPYCMD" --project --nested-directories --referencepath Game2 --languageversion CSharp14_0 --disable-updatecheck -ds Deconstruction=false -ds AsyncAwait=false -o "$OUT" "$2"
 RC=$?
 if [ $RC -ne 0 ]; then
     echo "Failed during project decompilation (ilspycmd exit $RC)."
@@ -51,7 +56,7 @@ fi
 
 # Second ilspycmd execution to decompile to IL code
 # Uncomment the next line to produce IL code. These files are big and useful only for transpiler and preloader patch development.
-#ilspycmd --ilcode --il-sequence-points -o "$OUT" "$2"
+#"$ILSPYCMD" --ilcode --il-sequence-points -o "$OUT" "$2"
 #RC=$?
 #if [ $RC -ne 0 ]; then
 #    echo "Failed during IL code generation (ilspycmd exit $RC)."

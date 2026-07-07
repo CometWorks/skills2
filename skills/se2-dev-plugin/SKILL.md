@@ -2,14 +2,14 @@
 name: se2-dev-plugin
 description: Plugin development for Space Engineers 2. Search plugin code from PluginHub-SE2 for examples and patterns.
 license: MIT
-allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*run_prepare.sh*), Bash(*dotnet build*), Bash(*dotnet clean*), Bash(*uv run search_plugin_code.py *), Bash(*uv run index_plugin_code.py*), Bash(*uv run list_plugins.py*), Bash(*uv run download_plugin_source.py *), Bash(*uv run download_pluginhub.py*), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*)
+allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*dotnet build*), Bash(*dotnet clean*), Bash(*uv run search_plugin_code.py *), Bash(*uv run index_plugin_code.py*), Bash(*uv run list_plugins.py*), Bash(*uv run download_plugin_source.py *), Bash(*uv run download_pluginhub.py*), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
 # SE2 Plugin Development Skill
 
 Plugin development for Space Engineers 2.
 
-**⚠️ CRITICAL: Commands run in a UNIX shell (busybox), NOT Windows CMD. Use bash syntax!**
+**⚠️ CRITICAL: Commands run in a UNIX shell. Use bash syntax! On Windows this is BusyBox (`busybox.exe <cmd>`); on Linux use the native shell directly.**
 
 Examples:
 - ✅ `test -f file.txt && echo exists`
@@ -18,8 +18,8 @@ Examples:
 
 **Actions:**
 
-- **prepare**: Run the one-time preparation (Prepare.bat)
-- **bash**: Run UNIX shell commands via busybox
+- **prepare**: Run the one-time preparation (`Prepare.bat` on Windows, `prepare.sh` on Linux)
+- **bash**: Run UNIX shell commands (BusyBox on Windows, native shell on Linux)
 - **search**: Search plugin code using `search_plugin_code.py`
 
 ## Routing Decision
@@ -41,7 +41,7 @@ If the `Prepare.DONE` file is missing in this folder, you MUST run the one-time 
 
 ## Essential Documentation
 
-- **[CommandExecution.md](CommandExecution.md)** - ⚠️ **READ THIS FIRST** - How to run commands correctly on Windows
+- **[CommandExecution.md](CommandExecution.md)** - ⚠️ **READ THIS FIRST** - How to run commands correctly on Windows and Linux
 
 ## Plugin Development Documentation
 
@@ -110,28 +110,29 @@ that may help with your task, then index and search them.
 
 ### Storage layout
 
-`Data\` inside this skill folder is a junction created by `Prepare.bat` that
-points to the user profile folder `%USERPROFILE%\.se2-dev\plugin\`. Everything
-downloaded by the skill is stored there so it survives across re-installs and
-`Clean.bat` runs.
+`Data/` inside this skill folder is a junction (Windows) or symlink (Linux)
+created by the preparation script. It points to the per-user data folder —
+`%USERPROFILE%\.se2-dev\plugin\` on Windows, `~/.se2-dev/plugin/` on Linux.
+Everything downloaded by the skill is stored there so it survives across
+re-installs and `Clean.bat`/`clean.sh` runs.
 
-- `Data\PluginHub-SE2\` — `git clone` of the PluginHub-SE2 registry
+- `Data/PluginHub-SE2/` — `git clone` of the PluginHub-SE2 registry
   (refreshed in place by `download_pluginhub.py` / `git pull`)
-- `Data\Sources\` — pre-created by `Prepare.bat`; contains a per-plugin
+- `Data/Sources/` — pre-created by the preparation script; contains a per-plugin
   subfolder for every downloaded plugin
-- `Data\Sources\<PluginName>\` — git clone of the plugin's GitHub repository
+- `Data/Sources/<PluginName>/` — git clone of the plugin's GitHub repository
   (overridable via `SE_PLUGIN_DOWNLOAD_FOLDER` or `plugin_download_folder:` in
   `CLAUDE.md`/`AGENTS.md`)
-- `Data\CodeIndex\` — CSV indexes produced by
+- `Data/CodeIndex/` — CSV indexes produced by
   `index_plugin_code.py` and consumed by `search_plugin_code.py`
-- `Data\plugins.json` — **registry**: records the upstream commit of the
+- `Data/plugins.json` — **registry**: records the upstream commit of the
   PluginHub clone, the per-plugin download state (`downloaded_plugins` —
   `registered_commit` vs `downloaded_commit`, so you can tell when a local copy
   is out of date), the plugins that have been indexed (`indexed_plugins`),
   and the full PluginHub-SE2 catalog (`available_plugins`).
 
 `download_plugin_source.py` requires `git` on `PATH` and clones each plugin
-into its own `Data\Sources\<PluginName>\` directory. Re-running it does
+into its own `Data/Sources/<PluginName>/` directory. Re-running it does
 `git fetch` + `git checkout` so local copies can be updated incrementally with
 a `git pull`. The commit hashes above are recorded in `plugins.json`.
 

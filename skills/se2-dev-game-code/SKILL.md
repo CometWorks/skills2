@@ -2,14 +2,14 @@
 name: se2-dev-game-code
 description: Allows reading the decompiled C# code of Space Engineers 2
 license: MIT
-allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*)
+allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
 # SE2 Game Code Search Skill
 
 Allows reading the decompiled C# code of Space Engineers 2.
 
-**⚠️ CRITICAL: Commands run in a UNIX shell (busybox), NOT Windows CMD. Use bash syntax!**
+**⚠️ CRITICAL: Commands run in a UNIX shell. Use bash syntax! On Windows this is BusyBox (`busybox.exe <cmd>`); on Linux use the native shell directly.**
 
 Examples:
 - ✅ `test -f file.txt && echo exists`
@@ -18,10 +18,10 @@ Examples:
 
 **Actions:**
 
-- **prepare**: Run the one-time preparation (Prepare.bat)
-- **bash**: Run UNIX shell commands via busybox
+- **prepare**: Run the one-time preparation (`Prepare.bat` on Windows, `prepare.sh` on Linux)
+- **bash**: Run UNIX shell commands (BusyBox on Windows, native shell on Linux)
 - **search**: Run code searches using `search_game_code.py`
-- **test**: Test this skill by running `test_search_game_code.bat`
+- **test**: Test this skill (`test_search_game_code.bat` on Windows, `test_search_game_code.sh` on Linux)
 
 ## Routing Decision
 
@@ -51,22 +51,26 @@ If the `Prepare.DONE` file is missing in this folder, you MUST run the one-time 
 
 ## Folder Layout
 
-After preparation the skill folder contains a `Data` junction. The actual data lives outside the skill folder so that it is preserved across `Clean.bat` / `Prepare.bat` cycles.
+After preparation the skill folder contains a `Data` junction (Windows) or symlink (Linux). The actual data lives outside the skill folder so that it is preserved across `Clean.bat`/`Prepare.bat` (Windows) or `clean.sh`/`prepare.sh` (Linux) cycles.
 
 ```
 skills/se2-dev-game-code/
-├── Data/                 (junction → %USERPROFILE%\.se2-dev\game-code)
+├── Data/                 (junction/symlink → per-user persistent game-code data)
 │   ├── .git/             local Git repository tracking decompiled sources
 │   ├── .gitignore        ignores CodeIndex/, Content/, __pycache__, *.py[cod], *.bak, *.log
 │   ├── game_version.txt  recorded SE2 version label
 │   ├── Decompiled/       decompiled C# sources, organised per assembly (committed)
 │   ├── Content/          textual game content (NOT committed - regenerated)
 │   └── CodeIndex/        CSV indexes (NOT committed - regenerated)
-├── Game2/                (junction → game's Game2, removed after preparation)
+├── Game2/                (junction/symlink → game's Game2, removed after preparation)
 └── ...                   skill scripts and documentation
 ```
 
-The `Data` folder is a junction to `%USERPROFILE%\.se2-dev\game-code\`. (`%USERPROFILE%` is used rather than `%LOCALAPPDATA%` so the data sits outside any per-app UWP filesystem virtualization.) Treat `Data/Decompiled`, `Data/Content` and `Data/CodeIndex` exactly as before.
+The `Data` folder points at the per-user persistent data directory:
+- **Windows:** junction to `%USERPROFILE%\.se2-dev\game-code\` (`%USERPROFILE%` is used rather than `%LOCALAPPDATA%` so the data sits outside any per-app UWP filesystem virtualization).
+- **Linux:** symlink to `~/.se2-dev/game-code/`.
+
+Treat `Data/Decompiled`, `Data/Content` and `Data/CodeIndex` the same way on every platform.
 
 ## Local Versioning of Decompiled Sources
 
@@ -82,7 +86,7 @@ The repository uses an internal author/email (`se2-dev-skills@localhost`) so com
 
 ## Essential Documentation
 
-- **[CommandExecution.md](CommandExecution.md)** - ⚠️ **READ THIS FIRST** - How to run commands correctly on Windows
+- **[CommandExecution.md](CommandExecution.md)** - ⚠️ **READ THIS FIRST** - How to run commands correctly on Windows and Linux
 
 ## Code Search Documentation
 

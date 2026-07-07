@@ -169,7 +169,7 @@ goto failed
 
 :: 12. Decompile the game assemblies
 if exist Data\Decompiled\VRage.Water goto skip_decompile
-.\busybox sh Decompile.sh
+.\busybox sh decompile.sh
 if %ERRORLEVEL% NEQ 0 goto failed
 
 :: 12a. Record the current game version and commit decompiled code

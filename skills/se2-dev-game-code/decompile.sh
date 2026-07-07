@@ -11,8 +11,8 @@ mkdir -p Data/Decompiled
 
 # Helper function to run the decompile and handle errors
 run_decompile() {
-    # Calls your previously converted script
-    ./DecompileDll.sh "$1" "$2" >> "$LOG" 2>&1
+    # Calls the per-assembly decompile script
+    ./decompile_dll.sh "$1" "$2" >> "$LOG" 2>&1
 
     if [ $? -ne 0 ]; then
         echo "Failed to decompile $1. Please check $LOG for details."

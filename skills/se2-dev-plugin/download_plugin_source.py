@@ -7,8 +7,10 @@ Downloads the source code of a plugin from its GitHub repository.
 The download folder is determined by (in priority order):
 1. SE_PLUGIN_DOWNLOAD_FOLDER environment variable
 2. plugin_download_folder setting in CLAUDE.md or AGENTS.md (in CWD)
-3. Default: Data/Sources/ inside the skill directory (a junction to
-   %USERPROFILE%\.se2-dev\plugin\Sources\ set up by Prepare.bat)
+3. Default: Data/Sources/ inside the skill directory (a junction on Windows /
+   symlink on Linux to the per-user data folder set up by the preparation
+   script: %USERPROFILE%\.se2-dev\plugin\Sources\ on Windows,
+   ~/.se2-dev/plugin/Sources/ on Linux)
 
 Each plugin is cloned into its own Data/Sources/<PluginName>/ subdirectory
 with `git clone` and checked out at the commit recorded in the PluginHub-SE2

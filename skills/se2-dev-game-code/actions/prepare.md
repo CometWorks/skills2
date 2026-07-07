@@ -4,11 +4,11 @@
 
 **⚠️ IMPORTANT: Read [CommandExecution.md](../CommandExecution.md) for complete guidance on running commands correctly.**
 
-Run `Prepare.bat` to set up the skill environment. This is required before using the skill.
+Run `Prepare.bat` (Windows) or `./prepare.sh` (Linux) to set up the skill environment. This is required before using the skill.
 
 ## Quick Check Status
 
-**IMPORTANT**: Use bash syntax, NOT Windows CMD syntax. Commands run through busybox (UNIX shell).
+**IMPORTANT**: Use bash syntax, NOT Windows CMD syntax. Commands run through a UNIX shell (BusyBox on Windows, the native shell on Linux).
 
 ```bash
 # ✅ CORRECT - Use bash syntax
@@ -29,12 +29,17 @@ If `Prepare.DONE` is missing:
 1. Review the requirements and instructions in [Prepare.md](../Prepare.md).
 2. Execute preparation using the skill folder as working directory:
 
-**Recommended approach (using workdir parameter):**
+**Linux:**
+```bash
+./prepare.sh (with workdir set to skill folder)
+```
+
+**Windows — recommended approach (using workdir parameter):**
 ```bash
 ./Prepare.bat (with workdir set to skill folder)
 ```
 
-**Alternative approaches:**
+**Windows — alternative approaches:**
 
 Using PowerShell:
 ```powershell
@@ -56,20 +61,19 @@ Prepare.bat
 ## Critical Rules
 
 - **DO NOT** create the `Prepare.DONE` file yourself.
-- It is automatically created by `Prepare.bat` only upon a successful run.
+- It is automatically created by the preparation script only upon a successful run.
 - Creating it manually is "faking" success and will lead to errors.
 
 ## What Preparation Does
 
 The preparation script:
-- Verifies that Python 3.13+ and the command line `git` client are available
-- Sets up the Python virtual environment
-- Downloads and installs required tools (busybox.exe, ILSpy)
-- Creates the `Data` junction pointing to `%USERPROFILE%\.se2-dev\game-code\`
+- Verifies that the command line `git` client is available and sets up the Python virtual environment (uv provides the pinned Python 3.13 for the venv even if the system Python is older)
+- Downloads and installs required tools (ILSpy; on Windows also `busybox.exe`)
+- Creates the `Data` junction (Windows) / symlink (Linux) pointing to the per-user data folder (`%USERPROFILE%\.se2-dev\game-code\` on Windows, `~/.se2-dev/game-code/` on Linux)
 - Initialises a local Git repository inside `Data/` on first run (with an initial commit of `.gitignore`)
 - Detects the current game version directly from the binaries
 - Wipes `Data/Decompiled`, `Data/Content` and `Data/CodeIndex` whenever the version differs from the recorded one (older versions remain in the local Git history)
-- Decompiles the game DLLs to C# and optionally to IL code (needs uncommenting a line in `DecompileDll.sh` if this is required)
+- Decompiles the game DLLs to C# and optionally to IL code (needs uncommenting a line in `decompile_dll.sh` if this is required)
 - Records the new game version in `Data/game_version.txt` and commits the decompiled sources with the version label as the commit message
 - Copies game content data into `Data/Content`
 - Builds the code search index in `Data/CodeIndex`

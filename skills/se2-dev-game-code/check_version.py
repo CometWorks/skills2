@@ -21,6 +21,7 @@ Modes:
         version label.
 """
 
+import os
 import re
 import shutil
 import subprocess
@@ -33,6 +34,11 @@ VERSION_FILE_NAME = "game_version.txt"
 GAME_DLL = "VRage.AI.dll"
 GAME_TYPE = "CurrentBundle"
 
+# ilspycmd executable. On Windows it is a global dotnet tool on PATH; on
+# Linux prepare.sh may install it into a per-user tool-path and export
+# ILSPYCMD with the absolute path. Fall back to the bare name otherwise.
+ILSPYCMD = os.environ.get("ILSPYCMD", "ilspycmd")
+
 
 def _decompile_type(game2: Path) -> str:
     dll = game2 / GAME_DLL
@@ -42,7 +48,7 @@ def _decompile_type(game2: Path) -> str:
     tmp_dir = Path(tempfile.mkdtemp(prefix="se2_version_"))
     try:
         cmd = [
-            "ilspycmd",
+            ILSPYCMD,
             "-t", GAME_TYPE,
             "--disable-updatecheck",
             "-o", str(tmp_dir),

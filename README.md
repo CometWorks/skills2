@@ -6,9 +6,17 @@ A [skill](https://agentskills.io) library for Space Engineers 2 plugin developme
 
 ## Prerequisites
 
-- Space Engineers 2
-- .NET 10 SDK (used to install `ilspycmd` as a global dotnet tool)
-- Python 3.13 or newer with `python.exe` on `PATH`
+- Space Engineers 2 (on Linux, installed via Steam/Proton)
+- .NET 10 SDK (used to install `ilspycmd` as a dotnet tool)
+- `git` command line client on `PATH`
+- Python 3.13 or newer on `PATH`
+  - On Linux this is optional: [`uv`](https://docs.astral.sh/uv/) provides
+    the pinned Python 3.13 for the skills' virtual environments automatically, so
+    the system Python version does not matter.
+
+Works on **Windows** and **Linux**. On Windows the skills use BusyBox and
+NTFS junctions; on Linux they use the native shell and symlinks. `uv` is
+installed automatically by the preparation step if missing.
 
 ## How to use
 
@@ -33,7 +41,8 @@ If you don't want to use `skills.sh`, just copy the skill folders into your codi
 ## Preparation
 
 The skills will automatically prepare themselves on **first use**. This involves downloading some tools and indexing code.
-If you want to prepare them ahead of time, simply run `Prepare.bat` in their respective folders.
+If you want to prepare them ahead of time, run the preparation script in their respective folders:
+`Prepare.bat` on Windows, or `./prepare.sh` on Linux.
 
 **Note:** Preparing the `se2-dev-game-code` skill may take 10–20 minutes, as it fully decompiles the game and builds
 code indexes to allow for rapid code search later. The fully prepared repository takes about **1 GB** of disk space

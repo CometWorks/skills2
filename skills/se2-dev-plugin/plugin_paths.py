@@ -1,8 +1,10 @@
 """
 Shared path resolution for plugin source downloads and the PluginHub-SE2 registry.
 
-`Data/` inside the skill folder is a junction to the user profile folder
-`%USERPROFILE%\\.se2-dev\\plugin\\` (created by Prepare.bat). Layout under it:
+`Data/` inside the skill folder is a junction (Windows) or symlink (Linux)
+to the per-user data folder created by the preparation script
+(`%USERPROFILE%\\.se2-dev\\plugin\\` on Windows, `~/.se2-dev/plugin/` on
+Linux). Layout under it:
 
     Data/                            # junction -> ~/.se2-dev/plugin/
         PluginHub-SE2/               # local clone of the plugin registry
