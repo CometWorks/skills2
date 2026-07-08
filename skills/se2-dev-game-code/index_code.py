@@ -825,101 +825,108 @@ class FileProcessor:
         if not name:
             return
 
+        # A type may have no base_list at all (a class deriving implicitly from
+        # System.Object, or an interface/struct with no bases). Such types must
+        # still be emitted so downstream consumers (the handbook type set, the
+        # hierarchy tree) do not silently drop them. base_types is [] in that case.
         base_list = self._find_base_list(node)
-        if not base_list:
-            return
-
-        base_types = self._get_base_list_types(base_list)
-        if not base_types:
-            return
+        base_types = self._get_base_list_types(base_list) if base_list else []
 
         if node.type == "interface_declaration":
-            # All items in interface base list are parent interfaces
-            for parent_type in base_types:
-                parent_fqn = self._resolve_type_namespace(
-                    parent_type, context["namespace"]
-                )
-                parent_ns, parent_name = self._split_namespace_and_type(parent_fqn)
-
-                hier_entry = InterfaceHierarchyEntry(
+            if base_types:
+                # All items in an interface base list are parent interfaces.
+                for parent_type in base_types:
+                    parent_fqn = self._resolve_type_namespace(
+                        parent_type, context["namespace"]
+                    )
+                    parent_ns, parent_name = self._split_namespace_and_type(parent_fqn)
+                    result.interface_hierarchy_entries.append(InterfaceHierarchyEntry(
+                        child_namespace=context["namespace"],
+                        child_interface=name,
+                        parent_namespace=parent_ns,
+                        parent_interface=parent_name,
+                        file_path=context["file_path"],
+                        start_line=node.start_point[0] + 1,
+                        end_line=node.end_point[0] + 1,
+                    ))
+            else:
+                # Root interface (no parent interface): emit a single row with an
+                # empty parent so it still appears as a top-level hierarchy node.
+                result.interface_hierarchy_entries.append(InterfaceHierarchyEntry(
                     child_namespace=context["namespace"],
                     child_interface=name,
-                    parent_namespace=parent_ns,
-                    parent_interface=parent_name,
+                    parent_namespace="",
+                    parent_interface="",
                     file_path=context["file_path"],
                     start_line=node.start_point[0] + 1,
                     end_line=node.end_point[0] + 1,
-                )
-                result.interface_hierarchy_entries.append(hier_entry)
+                ))
 
         elif node.type == "struct_declaration":
-            # Structs can only implement interfaces (no struct inheritance)
-            interface_fqns = []
-            for iface in base_types:
-                iface_fqn = self._resolve_type_namespace(
-                    iface, context["namespace"]
-                )
-                interface_fqns.append(iface_fqn)
-
-            impl_entry = InterfaceImplementationEntry(
-                implementing_namespace=context["namespace"],
-                implementing_type=name,
-                interfaces=",".join(interface_fqns),
-                file_path=context["file_path"],
-                start_line=node.start_point[0] + 1,
-                end_line=node.end_point[0] + 1,
-            )
-            result.interface_implementation_entries.append(impl_entry)
-
-        else:
-            # class_declaration or record_declaration
-            # First item could be base class or interface
-            first_type = base_types[0]
-            first_fqn = self._resolve_type_namespace(
-                first_type, context["namespace"]
-            )
-            first_ns, first_name = self._split_namespace_and_type(first_fqn)
-
-            # Check if first type is an interface (declared_interfaces is
-            # populated from Pass 1, so this check is now reliable)
-            is_interface = first_name in self.declared_interfaces
-
-            interfaces = []
-            if is_interface:
-                # All items are interfaces
-                interfaces = base_types
-            else:
-                # First item is base class, rest are interfaces
-                hier_entry = ClassHierarchyEntry(
-                    child_namespace=context["namespace"],
-                    child_class=name,
-                    parent_namespace=first_ns,
-                    parent_class=first_name,
-                    file_path=context["file_path"],
-                    start_line=node.start_point[0] + 1,
-                    end_line=node.end_point[0] + 1,
-                )
-                result.class_hierarchy_entries.append(hier_entry)
-                interfaces = base_types[1:]
-
-            # Process interfaces
-            if interfaces:
-                interface_fqns = []
-                for iface in interfaces:
-                    iface_fqn = self._resolve_type_namespace(
-                        iface, context["namespace"]
-                    )
-                    interface_fqns.append(iface_fqn)
-
-                impl_entry = InterfaceImplementationEntry(
+            # Structs can only implement interfaces (no struct inheritance).
+            # (Struct coverage comes from struct_declarations.csv, so a struct
+            # with no interfaces needs no row here.)
+            if base_types:
+                interface_fqns = [
+                    self._resolve_type_namespace(iface, context["namespace"])
+                    for iface in base_types
+                ]
+                result.interface_implementation_entries.append(InterfaceImplementationEntry(
                     implementing_namespace=context["namespace"],
                     implementing_type=name,
                     interfaces=",".join(interface_fqns),
                     file_path=context["file_path"],
                     start_line=node.start_point[0] + 1,
                     end_line=node.end_point[0] + 1,
+                ))
+
+        else:
+            # class_declaration or record_declaration. Every class derives from
+            # some base (System.Object when none is written), so ALWAYS emit a
+            # ClassHierarchyEntry. The first base type is the base class only when
+            # it is not an interface; otherwise the class is object-derived and
+            # all base types are implemented interfaces.
+            if base_types:
+                first_fqn = self._resolve_type_namespace(
+                    base_types[0], context["namespace"]
                 )
-                result.interface_implementation_entries.append(impl_entry)
+                first_ns, first_name = self._split_namespace_and_type(first_fqn)
+                first_is_interface = first_name in self.declared_interfaces
+            else:
+                first_ns = first_name = None
+                first_is_interface = False
+
+            if base_types and not first_is_interface:
+                parent_ns, parent_name = first_ns, first_name
+                interfaces = base_types[1:]
+            else:
+                # No explicit base class: implicit System.Object base.
+                parent_ns, parent_name = "System", "Object"
+                interfaces = base_types
+
+            result.class_hierarchy_entries.append(ClassHierarchyEntry(
+                child_namespace=context["namespace"],
+                child_class=name,
+                parent_namespace=parent_ns,
+                parent_class=parent_name,
+                file_path=context["file_path"],
+                start_line=node.start_point[0] + 1,
+                end_line=node.end_point[0] + 1,
+            ))
+
+            if interfaces:
+                interface_fqns = [
+                    self._resolve_type_namespace(iface, context["namespace"])
+                    for iface in interfaces
+                ]
+                result.interface_implementation_entries.append(InterfaceImplementationEntry(
+                    implementing_namespace=context["namespace"],
+                    implementing_type=name,
+                    interfaces=",".join(interface_fqns),
+                    file_path=context["file_path"],
+                    start_line=node.start_point[0] + 1,
+                    end_line=node.end_point[0] + 1,
+                ))
 
     def _process_class(self, node: Node, context: Dict, result: FileProcessingResult):
         """Process class/record declaration"""
