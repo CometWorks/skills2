@@ -94,16 +94,17 @@ fast native Rust Leiden clustering backend** and, when that backend is available
 `uv`), builds the graph **automatically** in ~1-2 minutes. Where the fast backend cannot be
 provisioned it falls back to slow single-core clustering (~10-30 minutes) and stays
 **opt-in** with `SE2_DEV_GRAPHIFY=1` (ask the user first); `SE2_DEV_GRAPHIFY=0` disables it.
-Read these on demand — skip them for normal search work:
+The Graphify tooling is shared by all `se2-dev-*` skills and lives in the
+[se2-dev](../se2-dev/SKILL.md) skill. Read these on demand — skip them for normal search work:
 
-- Build / health-check / rebuild: [GraphifyPrepare.md](GraphifyPrepare.md)
-- Query an existing graph: [GraphifyUsage.md](GraphifyUsage.md)
+- Build / health-check / rebuild: [GraphifyPrepare.md](../se2-dev/GraphifyPrepare.md)
+- Query an existing graph: [GraphifyUsage.md](../se2-dev/GraphifyUsage.md)
 
 Health check and query test (only meaningful once a graph is built):
 
 ```bash
-bash graphify_check.sh Data/Decompiled --deep   # is the graph usable?
-./test_graphify_game_code.sh                     # run a few graph queries
+bash ../se2-dev/graphify_check.sh Data/Decompiled --deep   # is the graph usable?
+./test_graphify_game_code.sh                               # run a few graph queries
 ```
 
 ## Essential Documentation

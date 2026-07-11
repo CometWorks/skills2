@@ -6,4 +6,4 @@
 4. The preparation is successful if the last line of `Prepare.log` is `DONE`. If it fails, inform the user and stop here.
 
 Notes:
-- An optional Graphify graph is built for the downloaded plugin sources under `Data/Sources` at the end of preparation. It builds **automatically** when the fast Rust clustering backend is available (Python 3.12 via `uv`, provisioned automatically); this corpus is small so it is quick either way. Without that backend it stays opt-in (`SE2_DEV_GRAPHIFY=1`); `SE2_DEV_GRAPHIFY=0` disables it. The graph is supplemental — a failure there never fails the core preparation. See [GraphifyPrepare.md](GraphifyPrepare.md).
+- An optional Graphify graph is built for the downloaded plugin sources under `Data/Sources` at the end of preparation. It builds **automatically** when the fast Rust clustering backend is available (Python 3.12 via `uv`, provisioned automatically); this corpus is small so it is quick either way. Without that backend it stays opt-in (`SE2_DEV_GRAPHIFY=1`); `SE2_DEV_GRAPHIFY=0` disables it. The graph is supplemental — a failure there never fails the core preparation. See [GraphifyPrepare.md](../se2-dev/GraphifyPrepare.md).

@@ -8,25 +8,30 @@
 Graphify answers *structural* questions the CSV code index cannot: how symbols connect
 (calls, inheritance, references), the shortest relationship path between two symbols,
 what a change would impact, and which community (cluster) a symbol belongs to. Use it
-alongside — not instead of — the `search_game_code.py` code index.
+alongside — not instead of — the `search_*` code index.
+
+Each subskill graphs its own corpus: `se2-dev-game-code` maps the decompiled game code
+under `Data/Decompiled`, `se2-dev-plugin` maps the downloaded plugin sources under
+`Data/Sources`.
 
 ## Before querying: is the graph healthy?
 
 A graph is only usable once clustering has finished. Check first:
 
 ```bash
-# Linux, from the skill folder
-bash graphify_check.sh Data/Decompiled --deep
+# Linux, from the subskill folder
+bash ../se2-dev/graphify_check.sh Data/Decompiled --deep
 ```
 
 ```bat
 REM Windows
-call GraphifyCheck.bat Data\Decompiled
+call ..\se2-dev\GraphifyCheck.bat Data\Decompiled
 ```
 
 `OK` means ready. `MISSING`/`INCOMPLETE` means it must be (re)built — see
 [GraphifyPrepare.md](GraphifyPrepare.md#health-check-and-rebuild). Confirm the rebuild
-cost with the user before rebuilding the large game graph.
+cost with the user before rebuilding the large game-code graph; the plugin-sources graph
+is small and quick to rebuild.
 
 ## Large-graph load cap
 
@@ -38,12 +43,16 @@ on it may need the cap raised:
 export GRAPHIFY_MAX_GRAPH_BYTES=2GB
 ```
 
-Run graphify from the graph root (`Data/Decompiled`) so it finds `graphify-out/graph.json`
-by default, or pass `--graph <path>`.
+The plugin-sources graph is far smaller and does not normally hit the cap.
+
+Run graphify from the graph root (`Data/Decompiled` or `Data/Sources`) so it finds
+`graphify-out/graph.json` by default, or pass `--graph <path>`.
 
 ## Query commands
 
 ```bash
+cd Data/Decompiled
+
 # BFS traversal answering a natural-language question (default 2000-token budget)
 graphify query "How is an entity created and updated?" --budget 400
 
@@ -60,14 +69,19 @@ graphify path "Entity" "IEntityContainer"
 graphify affected "Entity" --depth 1
 ```
 
+The same commands work against the plugin-sources graph with plugin symbols instead, e.g.
+`graphify query "How does a plugin register a Harmony patch?" --budget 400` or
+`graphify explain "Plugin"`. The exact node names there depend on which plugins have been
+downloaded into `Data/Sources`.
+
 Node names are matched fuzzily; `path`/`explain` may warn when a name is ambiguous and
 pick the best match. If `query` returns *No matching nodes found*, try a different symbol
 or a phrasing that mentions a concrete type/method name.
 
 ## Verifying a prepared graph
 
-The skill ships a query smoke test that runs a representative set of the commands above
-(after a health check):
+`se2-dev-game-code` ships a query smoke test that runs a representative set of the commands
+above (after a health check):
 
 ```bash
 # Linux

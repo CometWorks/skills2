@@ -12,8 +12,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./common_posix.sh
 source "$SCRIPT_DIR/common_posix.sh"
-# shellcheck source=./graphify_prepare.sh
-source "$SCRIPT_DIR/graphify_prepare.sh"
+# The Graphify integration is shared by all se2-dev-* skills and lives in the se2-dev
+# skill. It is supplemental, so when that skill is not installed alongside this one the
+# graph build is skipped rather than failing the preparation.
+if [ -f "$SCRIPT_DIR/../se2-dev/graphify_prepare.sh" ]; then
+    # shellcheck source=../se2-dev/graphify_prepare.sh
+    source "$SCRIPT_DIR/../se2-dev/graphify_prepare.sh"
+else
+    se2_dev_graphify_prepare() {
+        log "Graphify: skipping $1 (the se2-dev skill is not installed next to this one)"
+    }
+fi
 
 cd "$SCRIPT_DIR"
 

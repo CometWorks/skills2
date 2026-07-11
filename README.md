@@ -50,8 +50,13 @@ due to the decompiled source code, the code index and the copied game contents.
 
 ## Skills
 
+* [se2-dev](skills/se2-dev/SKILL.md) – **Start here.** Overview of the SE2 development ecosystem, routes to the skill your task needs, and holds the Graphify tooling shared by the other skills
 * [se2-dev-plugin](skills/se2-dev-plugin/SKILL.md) – Plugin development
 * [se2-dev-game-code](skills/se2-dev-game-code/SKILL.md) – Searchable decompiled C# game code
+
+Install `se2-dev` alongside the others: the `se2-dev-*` preparation scripts pick up their
+shared Graphify integration from it. Without it they still prepare normally, only skipping
+the optional graph.
 
 More are planned as the game gains modding, scripting, and multiplayer capabilities.
 
@@ -92,6 +97,7 @@ If you suspect something is not working in these skills, issue the following tes
 
 ```md
 Check whether you can see these skills:
+- `se2-dev`
 - `se2-dev-plugin`
 - `se2-dev-game-code`
 

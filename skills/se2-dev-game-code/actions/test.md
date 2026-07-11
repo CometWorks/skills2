@@ -97,7 +97,7 @@ Notify the user if you do this, because the preparation may take 5-15 minutes to
 ## Optional: Graphify Graph Test
 
 If the optional Graphify graph was built (see [Graphify Graph](../SKILL.md) and
-[GraphifyPrepare.md](../GraphifyPrepare.md)), verify it separately with the graph query
+[GraphifyPrepare.md](../../se2-dev/GraphifyPrepare.md)), verify it separately with the graph query
 smoke test — analogous to the code-search test but exercising the Graphify graph:
 
 ```bash

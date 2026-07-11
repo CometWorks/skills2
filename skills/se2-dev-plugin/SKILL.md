@@ -148,10 +148,11 @@ call/inherit/reference edges plus clustered communities that answers *structural
 the CSV code index cannot. With the fast Rust clustering backend (Python 3.12 via `uv`,
 provisioned automatically) prepare builds it **automatically**; this corpus is small so it
 is quick either way. Where the fast backend is unavailable it stays **opt-in** with
-`SE2_DEV_GRAPHIFY=1`; `SE2_DEV_GRAPHIFY=0` disables it. Read on demand — skip for normal
-search work: build via [GraphifyPrepare.md](GraphifyPrepare.md), query via
-[GraphifyUsage.md](GraphifyUsage.md). Check a built graph with
-`bash graphify_check.sh Data/Sources --deep`.
+`SE2_DEV_GRAPHIFY=1`; `SE2_DEV_GRAPHIFY=0` disables it. The Graphify tooling is shared by all
+`se2-dev-*` skills and lives in the [se2-dev](../se2-dev/SKILL.md) skill. Read on demand —
+skip for normal search work: build via [GraphifyPrepare.md](../se2-dev/GraphifyPrepare.md),
+query via [GraphifyUsage.md](../se2-dev/GraphifyUsage.md). Check a built graph with
+`bash ../se2-dev/graphify_check.sh Data/Sources --deep`.
 
 ## Action References
 

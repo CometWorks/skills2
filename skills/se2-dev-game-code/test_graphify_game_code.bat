@@ -18,7 +18,7 @@ if %ERRORLEVEL% NEQ 0 (
     echo   .\Prepare.bat   REM auto-builds with the fast Rust backend; set SE2_DEV_GRAPHIFY=1 to force the slow fallback
     exit /b 1
 )
-call "%~dp0GraphifyCheck.bat" "%GRAPH_ROOT%"
+call "%~dp0..\se2-dev\GraphifyCheck.bat" "%GRAPH_ROOT%"
 if %ERRORLEVEL% NEQ 0 (
     echo.
     echo FAIL: Graphify graph is missing or unusable. Rebuild it by re-running prepare:

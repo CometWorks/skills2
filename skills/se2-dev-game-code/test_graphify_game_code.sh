@@ -25,7 +25,7 @@ if ! command -v graphify >/dev/null 2>&1; then
     echo "  ./prepare.sh   # auto-builds with the fast Rust backend; add SE2_DEV_GRAPHIFY=1 to force the slow fallback"
     exit 1
 fi
-if ! bash "$SKILL_DIR/graphify_check.sh" "$GRAPH_ROOT" --deep; then
+if ! bash "$SKILL_DIR/../se2-dev/graphify_check.sh" "$GRAPH_ROOT" --deep; then
     echo
     echo "FAIL: Graphify graph is missing or unusable. Rebuild it by re-running prepare:"
     echo "  rm -rf \"$GRAPH_ROOT/graphify-out\""

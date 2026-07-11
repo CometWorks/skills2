@@ -5,10 +5,17 @@
 # Usage: graphify_check.sh <graph-root> [--deep]
 #
 #   <graph-root>  Directory that was graphed, i.e. the one containing
-#                 graphify-out/ (e.g. Data/Sources). Defaults to Data/Sources.
+#                 graphify-out/ (e.g. Data/Decompiled). Defaults to Data/Decompiled.
 #   --deep        Also parse graphify-out/.graphify_analysis.json and confirm it
 #                 holds a non-empty set of communities, i.e. clustering produced
 #                 real content rather than an empty stub. Needs python3.
+#
+# Shared by every se2-dev-* subskill; call it as ../se2-dev/graphify_check.sh from
+# the subskill folder and pass that subskill's graph root (Data/Decompiled for
+# se2-dev-game-code, Data/Sources for se2-dev-plugin).
+#
+# To actually exercise queries against a prepared corpus, use that skill's
+# test_graphify_*.sh script, which runs domain-specific query/explain/path calls.
 #
 # Exit codes:
 #   0  ok          - graph.json plus clustering data present (and usable with --deep)
@@ -16,8 +23,10 @@
 #   3  incomplete  - graph.json present but clustering is missing/interrupted;
 #                    the graph must be cleaned and rebuilt from scratch
 #
-# On a non-zero result the graph is unusable and should be rebuilt. The plugin
-# sources corpus is small, so rebuilding is quick.
+# On a non-zero result the graph is unusable and should be rebuilt. Rebuild is
+# expensive for the decompiled game corpus (~10-30 minutes on the slow fallback),
+# so confirm with the user before doing it. Small corpora such as the downloaded
+# plugin sources rebuild quickly.
 
 set -u
 
@@ -27,7 +36,7 @@ SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./graphify_prepare.sh
 source "$SCRIPT_DIR/graphify_prepare.sh"
 
-ROOT="Data/Sources"
+ROOT="Data/Decompiled"
 DEEP=0
 for arg in "$@"; do
     case "$arg" in
@@ -54,9 +63,9 @@ case "$STATUS" in
     incomplete)
         log "INCOMPLETE: $ROOT/graphify-out has a graph.json but clustering data is missing."
         log "The graph is unusable and must be rebuilt from scratch."
-        log "Clean and rebuild by re-running prepare:"
+        log "Clean and rebuild by re-running prepare (fast with the Rust backend; ~10-30 min on the slow fallback for game code):"
         log "  rm -rf \"$ROOT/graphify-out\""
-        log "  ./prepare.sh   # add SE2_DEV_GRAPHIFY=1 to force a build on the slow fallback"
+        log "  <prepare script>   # add SE2_DEV_GRAPHIFY=1 to force a build on the slow fallback"
         exit 3
         ;;
     ok)

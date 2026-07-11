@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-# Graphify integration for the se2-dev-game-code prepare script.
+# Shared Graphify integration for se2-dev-* prepare scripts.
 # Source this after common_posix.sh so the caller provides log().
 #
 # Clustering (community detection) is the slow part of a Graphify build. Graphify
 # has two backends for it:
 #   * fast: native Rust Leiden via graspologic — needs Python < 3.13 (we use 3.12).
 #   * slow: pure-Python Louvain fallback — single core, ~10-30 min on the ~220k-node
-#           decompiled game graph. Used automatically when graspologic is not importable
-#           (e.g. Graphify installed on Python 3.13, where graspologic has no wheel).
+#           decompiled game graph (seconds to minutes on small corpora such as the
+#           downloaded plugin sources). Used automatically when graspologic is not
+#           importable (e.g. Graphify installed on Python 3.13, where graspologic has
+#           no wheel).
 #
 # So we default the Graphify tool to Python 3.12 with the `leiden` extra. When the
 # fast Rust backend is available prepare builds the graph AUTOMATICALLY; when it can
@@ -23,7 +25,7 @@
 # Python version the Graphify tool runs under. Fast clustering (graspologic's Rust
 # Leiden) needs Python < 3.13; 3.13 silently drops to the slow fallback. Override
 # with SE2_DEV_GRAPHIFY_PYTHON if 3.12 is unsuitable on a given machine. Note that
-# the skill's own .venv still uses Python 3.13 — this pin applies only to the
+# the skills' own .venv still uses Python 3.13 — this pin applies only to the
 # separately-installed graphify tool.
 SE2_DEV_GRAPHIFY_PYTHON="${SE2_DEV_GRAPHIFY_PYTHON:-3.12}"
 
