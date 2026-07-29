@@ -32,6 +32,8 @@ SE2_DEV_GRAPHIFY_PYTHON="${SE2_DEV_GRAPHIFY_PYTHON:-3.12}"
 # Set by se2_dev_graphify_provision(): "fast" or "slow".
 SE2_DEV_GRAPHIFY_SPEED="slow"
 
+export GRAPHIFY_MAX_GRAPH_BYTES=2GB
+
 se2_dev_graphify_opt_in()  { [ "${SE2_DEV_GRAPHIFY:-}" = "1" ]; }
 se2_dev_graphify_opt_out() { [ "${SE2_DEV_GRAPHIFY:-}" = "0" ]; }
 
