@@ -221,7 +221,8 @@ se2_dev_graphify_provision() {
     return 0
 }
 
-# Classify the state of a graph under <root>/graphify-out. Echoes one of:
+# Classify the state of a graph under <out-dir>/graphify-out, where <out-dir>
+# defaults to the graphed root. Echoes one of:
 #   missing     - no graph.json (never built or failed early)
 #   incomplete  - graph.json present but clustering data (.graphify_analysis.json)
 #                 is absent or graph.json is implausibly small (build interrupted
@@ -229,7 +230,7 @@ se2_dev_graphify_provision() {
 #   ok          - graph.json plus clustering data present
 se2_dev_graphify_status() {
     local root="$1"
-    local out="$root/graphify-out"
+    local out="${2:-$root}/graphify-out"
     local graph="$out/graph.json"
 
     if [ ! -f "$graph" ]; then
@@ -258,39 +259,63 @@ se2_dev_graphify_status() {
 # Remove a graph directory so it can be rebuilt from scratch.
 se2_dev_graphify_clean() {
     local root="$1"
-    local out="$root/graphify-out"
+    local out="${2:-$root}/graphify-out"
     if [ -d "$out" ]; then
         log "Graphify: removing unusable graph at $out"
         rm -rf "$out"
     fi
 }
 
-# Build or update the graph at $root, healing an incomplete (unclustered) graph.
+# Build or update the graph of $root, healing an incomplete (unclustered) graph.
+# The graph is written to <out-dir>/graphify-out; <out-dir> defaults to $root, so
+# callers that do not pass one keep the graph inside the graphed tree. Callers
+# that keep the corpus clean (the code skill) pass the Data folder instead.
 se2_dev_graphify_run_build() {
     local label="$1"
     local root="$2"
+    local outdir="${3:-$2}"
     local status
-    status="$(se2_dev_graphify_status "$root")"
+    status="$(se2_dev_graphify_status "$root" "$outdir")"
+
+    # Only pass --out when it differs from the root, so the default invocation
+    # stays byte-identical to what the other skills have always run.
+    #
+    # The expansion is guarded rather than plain: callers source this under
+    # `set -u`, and bash before 4.4 (RHEL/CentOS 7 ship 4.2) treats an empty
+    # array expansion as an unbound variable. se2-dev-plugin passes no output
+    # directory, so the array IS empty there and the graph build would abort on
+    # those systems.
+    local out_args=()
+    if [ "$outdir" != "$root" ]; then
+        out_args=(--out "$outdir")
+    fi
+
     case "$status" in
         ok)
-            log "Graphify: updating $label graph at $root"
-            graphify "$root" --update || log "WARNING: Graphify update failed for $label; prepare continues."
+            log "Graphify: updating $label graph of $root at $outdir/graphify-out"
+            graphify "$root" --update ${out_args[@]+"${out_args[@]}"} || log "WARNING: Graphify update failed for $label; prepare continues."
             ;;
         incomplete)
             log "Graphify: $label graph is incomplete (clustering missing or interrupted); rebuilding from scratch"
-            se2_dev_graphify_clean "$root"
-            graphify "$root" || log "WARNING: Graphify build failed for $label; prepare continues."
+            se2_dev_graphify_clean "$root" "$outdir"
+            graphify "$root" ${out_args[@]+"${out_args[@]}"} || log "WARNING: Graphify build failed for $label; prepare continues."
             ;;
         *)
-            log "Graphify: building $label graph at $root"
-            graphify "$root" || log "WARNING: Graphify build failed for $label; prepare continues."
+            log "Graphify: building $label graph of $root at $outdir/graphify-out"
+            graphify "$root" ${out_args[@]+"${out_args[@]}"} || log "WARNING: Graphify build failed for $label; prepare continues."
             ;;
     esac
 }
 
+# se2_dev_graphify_prepare <label> <root> [out-dir]
+#
+# <root>     the tree to graph
+# <out-dir>  where to put graphify-out/ (default: <root>). Pass a directory
+#            outside <root> to keep the graphed tree free of build output.
 se2_dev_graphify_prepare() {
     local label="$1"
     local root="$2"
+    local outdir="${3:-$2}"
 
     if se2_dev_graphify_opt_out; then
         log "Graphify: skipping $label (SE2_DEV_GRAPHIFY=0)"
@@ -321,5 +346,10 @@ se2_dev_graphify_prepare() {
     fi
 
     root="$(cd -P -- "$root" && pwd)"
-    se2_dev_graphify_run_build "$label" "$root"
+    mkdir -p "$outdir" || {
+        log "Graphify: skipping $label (cannot create output directory: $outdir)"
+        return 0
+    }
+    outdir="$(cd -P -- "$outdir" && pwd)"
+    se2_dev_graphify_run_build "$label" "$root" "$outdir"
 }

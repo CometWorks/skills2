@@ -10,7 +10,7 @@ symlink (Linux), which points to the per-user data folder
 Linux):
 
 - **Data/Decompiled/** - Full decompiled C# source organized by assembly
-- **Data/Content/** - Game content files (definitions, translations)
+- **Data/Content/** - Game content files (definitions, translations); text only, see [ContentSelection.md](ContentSelection.md)
 - **Data/CodeIndex/** - Pre-built CSV indexes for fast symbol lookup
 - **Data/.git/** - Local Git repository tracking every decompilation; commit
   message is the game version label
@@ -27,12 +27,14 @@ Run the preparation steps in `Prepare.md` if `Prepare.DONE` is missing. This req
 Preparation will:
 1. Create the `Data` junction/symlink and the local Git repository inside it
    (with an initial commit of `.gitignore`)
-2. Detect the current game version by inspecting the binaries
-3. Wipe `Decompiled/`, `Content/` and `CodeIndex/` if the version differs from
-   the recorded one
-4. Decompile the game assemblies and commit them with the version label
-5. Copy game content
-6. Build the code index
+2. Migrate an older `Data` layout if needed (see [SKILL.md](SKILL.md))
+3. Detect the current game version by inspecting the binaries
+4. Wipe `Decompiled/`, `Content/`, `CodeIndex/` and `graphify-out/` if the
+   version differs from the recorded one
+5. Decompile the game assemblies
+6. Copy the indexable game content into `Content/` (text only - see [ContentSelection.md](ContentSelection.md))
+7. Commit the decompiled sources and the content with the version label
+8. Build the code index
 
 ## Code Index
 
@@ -52,6 +54,8 @@ Located in `Data/CodeIndex/` after preparation:
 | `struct_usages.csv` | Struct usages |
 | `enum_declarations.csv` | Enum declarations |
 | `enum_usages.csv` | Enum usages |
+| `enum_member_declarations.csv` | Enum member declarations (name, value, doc comment) |
+| `delegate_declarations.csv` | Delegate declarations |
 | `method_declarations.csv` | Method declarations |
 | `method_usages.csv` | Method usages |
 | `method_signatures.csv` | Method signatures (different columns, see below) |

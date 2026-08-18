@@ -2,7 +2,8 @@
 
 Search the decompiled Space Engineers 2 C# codebase efficiently.
 
-**IMPORTANT:** All commands run on Windows. This skill folder must be the current working directory.
+**IMPORTANT:** This skill folder must be the current working directory. The commands
+below are identical on Windows and Linux.
 
 ## Running Commands
 
@@ -21,6 +22,8 @@ uv run search_game_code.py class declaration CubeGridComponent
 | `interface` | Interface declarations and usages |
 | `struct` | Struct declarations and usages |
 | `enum` | Enum declarations and usages |
+| `enum_member` | Enum member declarations (usages count as usages of the enum) |
+| `delegate` | Delegate declarations |
 | `method` | Method declarations and usages |
 | `field` | Field declarations and usages |
 | `property` | Property declarations and usages |
@@ -56,6 +59,10 @@ uv run search_game_code.py -l 10 method usage GetPosition
 uv run search_game_code.py -l 10 struct usage Vector3D
 ```
 
+The pattern matches the used symbol itself, including usages inside method
+bodies. The enclosing namespace, type and method are not searchable - to narrow
+a usage search, filter by namespace with `-n` or grep the reported files.
+
 ### Search Method Signatures
 
 Method signatures show the complete method declaration including modifiers, return type, parameters, and attributes:
@@ -80,6 +87,11 @@ Game2.Simulation/Keen/Game2/Simulation/WorldObjects/CubeGrids/CubeGridComponent.
 ```
 
 **Note:** Signatures are always declarations. There is no `method signature usage` - use `method usage` instead to find method call sites.
+
+**Note:** Patterns match the method *name*, not the signature text. The full
+signature is only printed. Searching for a return type, parameter type or
+attribute (`text:MTAThread`, `"text:string[] args"`) returns NO-MATCHES - grep
+the declaration files for those instead.
 
 ## Search Options
 

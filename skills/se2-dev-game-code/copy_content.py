@@ -3,6 +3,9 @@ import sys
 from pathlib import Path
 from typing import Set
 
+# Sits beside Decompiled rather than inside it: Decompiled holds only decompiled
+# C# code. Content is versioned in the local Git repository all the same, so
+# changes to the definition files can be reviewed across game versions.
 CONTENT_DST = Path('Data') / 'Content'
 
 
@@ -42,7 +45,7 @@ def main():
     # Definition files (JSON-like format in SE2)
     copy_content(content_root, 'Armors', {'def'})
     copy_content(content_root, 'ArmorSkins', {'def'})
-    copy_content(content_root, 'Audio', {'def'})
+    copy_content(content_root, 'Audio', {'def', 'fshash'})
     copy_content(content_root, 'BlockMaterials', {'def'})
     copy_content(content_root, 'BlockTools', {'def'})
     copy_content(content_root, 'Blocks', {'def'})
@@ -55,11 +58,13 @@ def main():
     copy_content(content_root, 'Environment', {'def'})
     copy_content(content_root, 'Items', {'def'})
     copy_content(content_root, 'Materials', {'def'})
+    copy_content(content_root, 'Procedural', {'def'})
     copy_content(content_root, 'Templates', {'def'})
+    copy_content(content_root, 'Textures', {'def'})
     copy_content(content_root, 'UI', {'def'})
 
-    # Localization texts
-    copy_content(content_root, 'MainMenuData', {'loc-texts'})
+    # Localization texts, plus this folder's own definitions
+    copy_content(content_root, 'MainMenuData', {'def', 'loc-texts'})
 
     # System configuration and AI
     copy_content(content_root, 'System', {'def', 'json'})

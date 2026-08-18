@@ -2,6 +2,7 @@
 import argparse
 import csv
 import re
+import signal
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -13,6 +14,10 @@ CATEGORY_FILES = {
     "class": ("class_declarations.csv", "class_usages.csv"),
     "method": ("method_declarations.csv", "method_usages.csv"),
     "enum": ("enum_declarations.csv", "enum_usages.csv"),
+    # Enum members have no usage form of their own: a reference to `MyKeys.F1`
+    # is recorded as a usage of the enum.
+    "enum_member": ("enum_member_declarations.csv", None),
+    "delegate": ("delegate_declarations.csv", None),
     "struct": ("struct_declarations.csv", "struct_usages.csv"),
     "interface": ("interface_declarations.csv", "interface_usages.csv"),
     "field": ("field_declarations.csv", "field_usages.csv"),
@@ -24,6 +29,28 @@ CATEGORY_FILES = {
 
 HIERARCHY_SUBCOMMANDS = {"parent", "children", "implements", "implementors"}
 METHOD_SUBCOMMANDS = {"signature"}
+
+# Column holding the name of the symbol a row is about, per category.
+#
+# Declaration and usage rows share one CSV layout, but only one of its name
+# columns holds the indexed symbol - the others carry the *enclosing* context
+# (namespace / type / method the occurrence sits in). The column therefore has
+# to be selected per category: picking the first non-empty one makes member
+# usages match their enclosing method name instead of the member name.
+SYMBOL_COLUMNS = {
+    "class": "declaring_type",
+    "struct": "declaring_type",
+    "interface": "declaring_type",
+    "enum": "declaring_type",
+    "enum_member": "symbol_name",
+    "delegate": "declaring_type",
+    "method": "method",
+    "constructor": "method",
+    "field": "symbol_name",
+    "property": "symbol_name",
+    "event": "symbol_name",
+    "namespace": "namespace",
+}
 
 
 def parse_args():
@@ -100,20 +127,11 @@ def strip_mangled_generics(name):
     return name
 
 
-def get_symbol_name(row, is_signature=False, strip_generics=False):
-    if is_signature:
-        return row["method_name"]
-    elif "method" in row and row["method"]:  # For method index
-        return row["method"]
-    elif "symbol_name" in row and row["symbol_name"]:  # For field index
-        return row["symbol_name"]
-    elif "declaring_type" in row and row["declaring_type"]:  # For class, interface, struct, enum indices
-        name = row["declaring_type"]
-        if strip_generics:
-            name = strip_mangled_generics(name)
-        return name
-    else:  # For namespace indices (symbol is the namespace itself)
-        return row.get("namespace", "")
+def get_symbol_name(row, category, strip_generics=False):
+    name = row.get(SYMBOL_COLUMNS[category], "")
+    if strip_generics:
+        name = strip_mangled_generics(name)
+    return name
 
 
 def matches_pattern(name, pattern):
@@ -363,7 +381,9 @@ def search_interface_implementors(patterns, ns_filter):
     with open(index_file, "r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            interfaces = row["interfaces"].split(",")
+            # Semicolon-separated: an interface's own generic arguments
+            # contain commas.
+            interfaces = row["interfaces"].split(";")
             impl_fqn = (
                 f"{row['implementing_namespace']}.{row['implementing_type']}"
                 if row["implementing_namespace"]
@@ -426,7 +446,7 @@ def main():
                             row_ns == ns_filter or row_ns.startswith(ns_filter + ".")
                         ):
                             continue
-                    name = get_symbol_name(row, is_signature=True)
+                    name = row["method_name"]
                     if all(matches_pattern(name, p) for p in patterns):
                         matches.append(row)
 
@@ -551,9 +571,7 @@ def main():
                 row_ns = row["namespace"].lower()
                 if not (row_ns == ns_filter or row_ns.startswith(ns_filter + ".")):
                     continue
-            name = get_symbol_name(
-                row, is_signature=False, strip_generics=strip_generics
-            )
+            name = get_symbol_name(row, args.category, strip_generics=strip_generics)
 
             # For mangled type declarations, use prefix matching to avoid false positives
             # from namespace prefixes embedded in generated class names
@@ -589,4 +607,9 @@ def main():
 
 
 if __name__ == "__main__":
+    # Results are routinely piped into head/grep, which closes the pipe early.
+    # Restore the default SIGPIPE handling so that exits quietly instead of
+    # raising BrokenPipeError. Windows has no SIGPIPE.
+    if hasattr(signal, "SIGPIPE"):
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     main()

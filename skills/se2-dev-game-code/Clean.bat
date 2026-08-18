@@ -1,17 +1,17 @@
 @echo off
-:: Clean.bat - removes everything that Prepare.bat creates inside the skill
-:: folder. The Data folder (a junction to %USERPROFILE%\.se2-dev\game-code)
-:: is preserved: only the junction itself is removed so the actual contents
-:: (Decompiled, CodeIndex, Content, .git) survive across runs.
+REM Clean.bat - removes everything that Prepare.bat creates inside the skill
+REM folder. The Data folder (a junction to %USERPROFILE%\.se2-dev\game-code)
+REM is preserved: only the junction itself is removed so the actual contents
+REM (Decompiled, Content, CodeIndex, graphify-out, .git) survive across runs.
 
-:: Remove the Data junction (NOT its contents - rmdir without /s deletes only
-:: the junction reparse point and leaves the target folder intact).
+REM Remove the Data junction (NOT its contents - rmdir without /s deletes only
+REM the junction reparse point and leaves the target folder intact).
 if exist Data rmdir Data
 
-:: Remove the Game2 junction (also leaves the actual game install untouched).
+REM Remove the Game2 junction (also leaves the actual game install untouched).
 if exist Game2 rmdir Game2
 
-:: Remove transient skill artefacts.
+REM Remove transient skill artefacts.
 if exist __pycache__   rmdir /s /q __pycache__
 if exist .venv         rmdir /s /q .venv
 if exist busybox.exe   del busybox.exe
