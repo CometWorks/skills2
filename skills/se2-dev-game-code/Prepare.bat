@@ -1,21 +1,10 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-REM 1. Detect game install location (env var override takes precedence)
-if defined SE2_GAME_ROOT goto have_game_root
-
-REM Try the game's registry key
-for /f "tokens=2*" %%A in ('reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1133870" /v "InstallLocation" 2^>nul') do (
-    set "SE2_GAME_ROOT=%%B"
-)
-
-if defined SE2_GAME_ROOT goto have_game_root
-echo ERROR: Could not detect Space Engineers 2 install location.
-echo Please set the SE2_GAME_ROOT environment variable to the game's root folder
-echo (the folder containing Game2, GameData, etc.)
-goto failed
-
-:have_game_root
+REM 1. Detect game install location (env var override takes precedence).
+REM The detection is shared with VerifyGameFiles.bat.
+call "%~dp0DetectGameRoot.bat"
+if %ERRORLEVEL% NEQ 0 goto failed
 echo Game Root: %SE2_GAME_ROOT%
 
 REM 2. Verify Python is available
@@ -210,6 +199,7 @@ if %ERRORLEVEL% EQU 2 (
     if exist Data\CodeIndex  rmdir /s /q Data\CodeIndex
     if exist Data\Content    rmdir /s /q Data\Content
     if exist Data\graphify-out rmdir /s /q Data\graphify-out
+    if exist Data\game_files.json del Data\game_files.json
     mkdir Data\Decompiled 2>NUL
     goto skip_wipe
 )
@@ -234,6 +224,17 @@ uv run python -u copy_content.py "%SE2_GAME_ROOT%\GameData\Vanilla\Content"
 if %ERRORLEVEL% NEQ 0 goto failed
 set NEED_COMMIT=1
 :skip_content
+
+REM 14b. Hash every original game file. The digests are versioned alongside the
+REM decompiled sources, so diffing Data\game_files.json between two version
+REM commits shows exactly which binaries a game update changed - including the
+REM ones that are neither assemblies nor copied into Data\Content.
+if exist Data\game_files.json goto skip_hashes
+echo Hashing the original game files
+uv run python -u hash_game_files.py --write "%SE2_GAME_ROOT%" Data
+if %ERRORLEVEL% NEQ 0 goto failed
+set NEED_COMMIT=1
+:skip_hashes
 
 REM 15. Record the current game version and commit decompiled code and content
 if "!NEED_COMMIT!"=="0" goto skip_commit

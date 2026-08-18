@@ -121,6 +121,7 @@ case "$RC" in
         # Data files are incomplete until preparation finishes for the new game version
         rm -f Prepare.DONE
         rm -rf Data/Decompiled Data/CodeIndex Data/Content Data/graphify-out
+        rm -f Data/game_files.json
         mkdir -p Data/Decompiled
         ;;
     *)
@@ -142,6 +143,16 @@ fi
 if [ ! -d Data/Content ]; then
     log "Copying indexable content"
     uv run python -u copy_content.py "$GAME_ROOT/GameData/Vanilla/Content"
+    NEED_COMMIT=1
+fi
+
+# 8b. Hash every original game file. The digests are versioned alongside the
+# decompiled sources, so diffing Data/game_files.json between two version commits
+# shows exactly which binaries a game update changed - including the ones that are
+# neither assemblies nor copied into Data/Content.
+if [ ! -f Data/game_files.json ]; then
+    log "Hashing the original game files"
+    uv run python -u hash_game_files.py --write "$GAME_ROOT" Data
     NEED_COMMIT=1
 fi
 

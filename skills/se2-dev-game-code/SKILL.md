@@ -2,7 +2,7 @@
 name: se2-dev-game-code
 description: Allows reading the decompiled C# code of Space Engineers 2
 license: MIT
-allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*test_graphify_game_code*), Bash(*uv run test_search_code.py*), Bash(*uv run test_graphify_queries.py*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
+allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*VerifyGameFiles.bat*), Bash(*verify_game_files.sh*), Bash(*uv run hash_game_files.py *), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*test_graphify_game_code*), Bash(*uv run test_search_code.py*), Bash(*uv run test_graphify_queries.py*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
 # SE2 Game Code Search Skill
@@ -59,6 +59,7 @@ skills/se2-dev-game-code/
 │   ├── .git/             local Git repository tracking decompiled sources and content
 │   ├── .gitignore        ignores CodeIndex/, graphify-out/, __pycache__, *.py[cod], *.bak, *.log
 │   ├── game_version.txt  recorded SE2 version label
+│   ├── game_files.json   SHA256 of every original game file (committed - diffable)
 │   ├── Decompiled/       decompiled C# sources only, organised per assembly (committed)
 │   ├── Content/          textual game content (committed - definition changes reviewable)
 │   ├── CodeIndex/        CSV indexes (NOT committed - regenerated)
@@ -80,10 +81,23 @@ The `Data` folder is a local Git repository. Every successful preparation create
 This means:
 
 - **All previously decompiled game versions are preserved** in the local Git history. You can `git checkout` any past commit inside `Data/` to inspect or diff against an older build, and `git diff` two version commits to see what a game update changed in both the code and the content definitions.
-- **Game updates are detected automatically** by comparing the binaries' embedded version with `Data/game_version.txt`. If they differ (or the file is missing), `Decompiled/`, `Content/`, `CodeIndex/` and `graphify-out/` are wiped and a fresh decompilation runs.
+- **Game updates are detected automatically** by comparing the binaries' embedded version with `Data/game_version.txt`. If they differ (or the file is missing), `Decompiled/`, `Content/`, `CodeIndex/`, `graphify-out/` and `game_files.json` are wiped and a fresh decompilation runs.
 - This makes it easy to **update plugins for compatibility with new game releases**: diff the relevant source between two commits inside `Data/` to see exactly what changed.
 
 The repository uses an internal author/email (`se2-dev-skills@localhost`) so commits work even on machines without a configured global Git identity.
+
+## Original Game File Hashes
+
+Preparation also records the SHA256 of **every** file in the game install into
+`Data/game_files.json` (path relative to the `SpaceEngineers2` folder → lower-case hex
+digest, alphabetically sorted, one pair per line) and commits it under the version label.
+Diffing it between two version commits shows exactly which binaries a game update changed
+— including assets that are neither assemblies nor text, so they appear in neither
+`Data/Decompiled` nor `Data/Content`.
+
+Verify an install against the recorded digests with `./verify_game_files.sh` (Linux) or
+`.\VerifyGameFiles.bat` (Windows). Read [GameFileHashes.md](GameFileHashes.md) for the
+file format, the diffing recipe and the verification output.
 
 ## Graphify Graph (optional)
 
@@ -121,6 +135,7 @@ bash ../se2-dev/graphify_check.sh Data --deep   # is the graph usable?
 - **[HierarchySearch.md](HierarchySearch.md)** - Finding class/interface inheritance and implementations
 - **[Advanced.md](Advanced.md)** - Power user techniques for complex searches
 - **[Troubleshooting.md](Troubleshooting.md)** - What to do when searches return NO-MATCHES or too many results
+- **[GameFileHashes.md](GameFileHashes.md)** - SHA256 digests of the original game files: format, diffing across game versions, verifying an install
 - **[Implementation.md](Implementation.md)** - Technical details for skill contributors (optional)
 
 ## Quick Search Examples

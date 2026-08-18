@@ -105,6 +105,26 @@ If tests fail:
 As a last resort, you can force repeating the whole preparation process by running the clean then prepare scripts: `./clean.sh` then `./prepare.sh` (Linux), or `.\Clean.bat` then `.\Prepare.bat` (Windows).
 Notify the user if you do this, because the preparation may take 5-15 minutes to complete depending on the hardware.
 
+## Optional: Game File Integrity Check
+
+Independent of the search tests, the installed game files can be checked against the
+SHA256 digests recorded during preparation (`Data/game_files.json`):
+
+```bash
+# Linux
+./verify_game_files.sh
+```
+
+```cmd
+REM Windows
+.\VerifyGameFiles.bat
+```
+
+Exit code 0 and `VERIFICATION PASSED` means the install matches the snapshot the
+decompilation was made from. Exit code 2 lists the `MISSING:`/`MODIFIED:`/`EXTRA:`
+files — usually a game update that preparation has not picked up yet, so re-run
+preparation. See [GameFileHashes.md](../GameFileHashes.md).
+
 ## Optional: Graphify Graph Test
 
 If the optional Graphify graph was built (see [Graphify Graph](../SKILL.md) and
