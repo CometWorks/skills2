@@ -45,7 +45,7 @@ def main():
     # Definition files (JSON-like format in SE2)
     copy_content(content_root, 'Armors', {'def'})
     copy_content(content_root, 'ArmorSkins', {'def'})
-    copy_content(content_root, 'Audio', {'def'})
+    copy_content(content_root, 'Audio', {'def', 'fshash'})
     copy_content(content_root, 'BlockMaterials', {'def'})
     copy_content(content_root, 'BlockTools', {'def'})
     copy_content(content_root, 'Blocks', {'def'})

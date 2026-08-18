@@ -21,7 +21,7 @@ from collections import defaultdict
 from pathlib import Path
 
 # Text file extensions to index (skip binary assets like .dds, .mwm, .wav, etc.)
-TEXT_EXTENSIONS = {".def", ".loc-texts", ".json"}
+TEXT_EXTENSIONS = {".def", ".loc-texts", ".json", ".fshash"}
 
 
 def collect_content_files(content_dir):
@@ -56,7 +56,7 @@ def build_source_text_cache(decompiled_dir):
 # Tokens we extract from source: identifier-like names, optionally followed by
 # one of our known content extensions (to catch filenames like "Foo.def" as a
 # single token). The hyphen in ".loc-texts" is matched literally.
-_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.(?:def|loc-texts|json))?")
+_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.(?:def|loc-texts|json|fshash))?")
 
 
 def build_token_index(source_cache):
