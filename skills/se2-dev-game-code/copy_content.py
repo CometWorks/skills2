@@ -58,11 +58,13 @@ def main():
     copy_content(content_root, 'Environment', {'def'})
     copy_content(content_root, 'Items', {'def'})
     copy_content(content_root, 'Materials', {'def'})
+    copy_content(content_root, 'Procedural', {'def'})
     copy_content(content_root, 'Templates', {'def'})
+    copy_content(content_root, 'Textures', {'def'})
     copy_content(content_root, 'UI', {'def'})
 
-    # Localization texts
-    copy_content(content_root, 'MainMenuData', {'loc-texts'})
+    # Localization texts, plus this folder's own definitions
+    copy_content(content_root, 'MainMenuData', {'def', 'loc-texts'})
 
     # System configuration and AI
     copy_content(content_root, 'System', {'def', 'json'})

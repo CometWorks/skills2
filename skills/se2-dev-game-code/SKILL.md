@@ -163,6 +163,9 @@ The textual part of the game's `Content` is copied into the `Data/Content` folde
 - Block and other entity definitions
 - Default blueprints and scenarios
 - See [ContentTypes.md](ContentTypes.md) for the full list of content types
+- See [ContentSelection.md](ContentSelection.md) for which files are copied and which are
+  left behind — only text is copied, so models, textures, audio and video are **not** in
+  `Data/Content` even when a definition references them
 
 ### Content Index
 
@@ -176,7 +179,7 @@ have a single row with an empty `usage` column.
 ## General Rules
 
 - In the `Data/Decompiled` folder search only inside the C# source files (*.cs) in general. If you work on transpiler or preloader patches, then also search in the IL code (*.il) files.
-- In the `Data/Content` folder search the files appropriate for the task. See [ContentTypes.md](ContentTypes.md) for the list of types.
+- In the `Data/Content` folder search the files appropriate for the task. See [ContentTypes.md](ContentTypes.md) for the list of types and [ContentSelection.md](ContentSelection.md) for what is not there at all.
 - Do not search for decompiled game code outside the `Data/Decompiled` folder. The decompiled game source tree must be there if the preparation succeeded.
 - Do not search for game content data outside the `Data/Content` folder. The copied game content must be there if the preparation succeeded.
 

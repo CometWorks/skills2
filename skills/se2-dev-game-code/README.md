@@ -10,7 +10,7 @@ symlink (Linux), which points to the per-user data folder
 Linux):
 
 - **Data/Decompiled/** - Full decompiled C# source organized by assembly
-- **Data/Content/** - Game content files (definitions, translations)
+- **Data/Content/** - Game content files (definitions, translations); text only, see [ContentSelection.md](ContentSelection.md)
 - **Data/CodeIndex/** - Pre-built CSV indexes for fast symbol lookup
 - **Data/.git/** - Local Git repository tracking every decompilation; commit
   message is the game version label
@@ -32,7 +32,7 @@ Preparation will:
 4. Wipe `Decompiled/`, `Content/`, `CodeIndex/` and `graphify-out/` if the
    version differs from the recorded one
 5. Decompile the game assemblies
-6. Copy the indexable game content into `Content/`
+6. Copy the indexable game content into `Content/` (text only - see [ContentSelection.md](ContentSelection.md))
 7. Commit the decompiled sources and the content with the version label
 8. Build the code index
 

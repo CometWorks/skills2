@@ -169,7 +169,8 @@ with open(file_path, "r", encoding="utf-8") as f:
 
 ### Searching Content Data
 
-Game content is in `Data/Content/`. See `ContentTypes.md` for structure.
+Game content is in `Data/Content/`. See `ContentTypes.md` for structure and
+`ContentSelection.md` for which files were copied out of the game install.
 
 ```python
 from pathlib import Path
