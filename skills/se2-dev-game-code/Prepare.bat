@@ -261,16 +261,26 @@ popd
 REM 16. Remove the Game2 junction
 rmdir /s /q Game2
 
-REM 17. Build the code index
-if exist Data\CodeIndex\class_declarations.csv goto skip_code_index
+REM 17. Build the code index. An unchanged decompilation keeps its index: indexing
+REM runs only when check_index.py reports the index missing or broken. index_code.py
+REM rewrites every file it owns, so a broken index needs no wiping beforehand.
+uv run python -u check_index.py Data\CodeIndex
+if %ERRORLEVEL% EQU 0 (
+    echo Code index is complete - keeping it
+    goto skip_code_index
+)
 echo Indexing decompiled code
 mkdir Data\CodeIndex 2>NUL
 uv run python -OO -u index_code.py Data\Decompiled Data\CodeIndex
 if %ERRORLEVEL% NEQ 0 goto failed
 :skip_code_index
 
-REM 18. Build the content index
-if exist Data\CodeIndex\content_index.csv goto skip_content_index
+REM 18. Build the content index, under the same missing-or-broken rule.
+uv run python -u check_index.py --content Data\CodeIndex
+if %ERRORLEVEL% EQU 0 (
+    echo Content index is complete - keeping it
+    goto skip_content_index
+)
 echo Indexing content files
 uv run python -u index_content.py Data\Content Data\Decompiled Data\CodeIndex
 if %ERRORLEVEL% NEQ 0 goto failed
@@ -292,8 +302,13 @@ if defined SE2_DEV_GAME_CODE_GRAPH_OUT (
 ) else (
     set "GAME_CODE_GRAPH_OUT=%CD%\Data"
 )
+REM     NEED_COMMIT tells whether anything under Data was regenerated in this run. When
+REM     nothing was, the graphed sources are still the ones the existing graph was built
+REM     from, so a healthy graph is left alone instead of being rescanned and reclustered.
+set "GAME_CODE_SOURCE_STATE=unchanged"
+if "!NEED_COMMIT!"=="1" set "GAME_CODE_SOURCE_STATE=changed"
 if exist "%~dp0..\se2-dev\GraphifyPrepare.bat" (
-    call "%~dp0..\se2-dev\GraphifyPrepare.bat" "se2-dev-game-code" "%GAME_CODE_GRAPH_ROOT%" "%GAME_CODE_GRAPH_OUT%"
+    call "%~dp0..\se2-dev\GraphifyPrepare.bat" "se2-dev-game-code" "%GAME_CODE_GRAPH_ROOT%" "%GAME_CODE_GRAPH_OUT%" "!GAME_CODE_SOURCE_STATE!"
 ) else (
     echo Graphify: skipping se2-dev-game-code ^(the se2-dev skill is not installed next to this one^)
 )

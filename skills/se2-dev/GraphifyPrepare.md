@@ -93,6 +93,11 @@ Prepare builds one graph per subskill. Graph output goes to
 `<graph root>/graphify-out` unless the skill passes a separate output directory
 (third argument of `se2_dev_graphify_prepare` / `GraphifyPrepare.bat`).
 
+Both entry points also raise `GRAPHIFY_MAX_GRAPH_BYTES` to `2GB` (an already-set value
+wins), because the decompiled game-code `graph.json` is far past Graphify's 512 MB
+default and every build and update on it would otherwise abort. See
+[GraphifyUsage.md](GraphifyUsage.md) for the query-side effect of the same cap.
+
 | Subskill | Default graph root | Graph stored in | Override |
 |----------|--------------------|-----------------|----------|
 | `se2-dev-plugin` | downloaded plugin sources (`Data/Sources`) | inside the graph root | `SE2_DEV_PLUGIN_PROJECT_ROOT` |
@@ -147,8 +152,16 @@ queries return little useful structure. A build that is killed part-way leaves a
 this far less likely, since clustering the big corpus now takes only a minute or two.)
 
 Prepare guards against this automatically: it inspects an existing graph and, if it finds
-`graph.json` but no clustering, it **cleans `graphify-out/` and rebuilds from scratch**
-rather than `--update`-ing a broken graph.
+`graph.json` but no clustering (or a truncated `graph.json`), it **cleans `graphify-out/`
+and rebuilds from scratch** rather than `--update`-ing a broken graph.
+
+The same inspection decides whether to touch the graph at all. A subskill that knows
+nothing in its corpus was regenerated passes `unchanged` as the fourth argument of
+`se2_dev_graphify_prepare` / `GraphifyPrepare.bat`; a healthy graph is then **left alone**,
+skipping the tool provisioning, the disk pre-check and the incremental rescan. An unhealthy
+or missing graph is still rebuilt. `se2-dev-game-code` passes `unchanged` whenever the game
+version is the same and nothing under `Data` was rebuilt, so repeated prepare runs on an
+up-to-date install finish in seconds.
 
 To check a graph's health independently, run the standalone checker:
 

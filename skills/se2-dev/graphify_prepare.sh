@@ -32,7 +32,10 @@ SE2_DEV_GRAPHIFY_PYTHON="${SE2_DEV_GRAPHIFY_PYTHON:-3.12}"
 # Set by se2_dev_graphify_provision(): "fast" or "slow".
 SE2_DEV_GRAPHIFY_SPEED="slow"
 
-export GRAPHIFY_MAX_GRAPH_BYTES=2GB
+# The decompiled game-code graph.json is well over Graphify's default 512 MB load
+# cap, which would abort every build and update. Raise it, but let an explicitly
+# set value win so a larger corpus can be accommodated without editing this file.
+export GRAPHIFY_MAX_GRAPH_BYTES="${GRAPHIFY_MAX_GRAPH_BYTES:-2GB}"
 
 se2_dev_graphify_opt_in()  { [ "${SE2_DEV_GRAPHIFY:-}" = "1" ]; }
 se2_dev_graphify_opt_out() { [ "${SE2_DEV_GRAPHIFY:-}" = "0" ]; }
@@ -307,15 +310,20 @@ se2_dev_graphify_run_build() {
     esac
 }
 
-# se2_dev_graphify_prepare <label> <root> [out-dir]
+# se2_dev_graphify_prepare <label> <root> [out-dir] [source-state]
 #
-# <root>     the tree to graph
-# <out-dir>  where to put graphify-out/ (default: <root>). Pass a directory
-#            outside <root> to keep the graphed tree free of build output.
+# <root>          the tree to graph
+# <out-dir>       where to put graphify-out/ (default: <root>). Pass a directory
+#                 outside <root> to keep the graphed tree free of build output.
+# <source-state>  "unchanged" when the caller knows nothing under <root> was
+#                 regenerated in this run, so an existing healthy graph still
+#                 matches its sources and is left untouched. Anything else
+#                 (default "changed") builds or updates as before.
 se2_dev_graphify_prepare() {
     local label="$1"
     local root="$2"
     local outdir="${3:-$2}"
+    local source_state="${4:-changed}"
 
     if se2_dev_graphify_opt_out; then
         log "Graphify: skipping $label (SE2_DEV_GRAPHIFY=0)"
@@ -329,6 +337,14 @@ se2_dev_graphify_prepare() {
 
     if [ ! -d "$root" ]; then
         log "Graphify: skipping $label (missing root: $root)"
+        return 0
+    fi
+
+    # Sources unchanged and the existing graph is usable: there is nothing to do.
+    # Checked before provisioning so an up-to-date graph costs neither a tool
+    # install nor the disk pre-check scan of the whole corpus.
+    if [ "$source_state" = "unchanged" ] && [ "$(se2_dev_graphify_status "$root" "$outdir")" = "ok" ]; then
+        log "Graphify: $label graph is up to date (sources unchanged); skipping"
         return 0
     fi
 

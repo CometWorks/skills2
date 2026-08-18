@@ -175,15 +175,21 @@ fi
 # 10. Remove the transient Game2 symlink (the game install is untouched).
 [ -L Game2 ] && rm -f Game2
 
-# 11. Build the code index.
-if [ ! -f Data/CodeIndex/class_declarations.csv ]; then
+# 11. Build the code index. An unchanged decompilation keeps its index: indexing
+# runs only when check_index.py reports the index missing or broken. index_code.py
+# rewrites every file it owns, so a broken index needs no wiping beforehand.
+if uv run python -u check_index.py Data/CodeIndex; then
+    log "Code index is complete - keeping it"
+else
     log "Indexing decompiled code"
     mkdir -p Data/CodeIndex
     uv run python -OO -u index_code.py Data/Decompiled Data/CodeIndex
 fi
 
-# 12. Build the content index.
-if [ ! -f Data/CodeIndex/content_index.csv ]; then
+# 12. Build the content index, under the same missing-or-broken rule.
+if uv run python -u check_index.py --content Data/CodeIndex; then
+    log "Content index is complete - keeping it"
+else
     log "Indexing content files"
     uv run python -u index_content.py Data/Content Data/Decompiled Data/CodeIndex
 fi
@@ -193,9 +199,17 @@ fi
 #     is supplemental — a failure here never fails the core preparation.
 #     Only the decompiled C# code is graphed; the graph itself is written beside it
 #     (Data/graphify-out) so it never pollutes the graphed tree or the repository.
+#     NEED_COMMIT tells whether anything under Data was regenerated in this run. When
+#     nothing was, the graphed sources are still the ones the existing graph was built
+#     from, so a healthy graph is left alone instead of being rescanned and reclustered.
 GAME_CODE_GRAPH_ROOT="${SE2_DEV_GAME_CODE_GRAPH_ROOT:-Data/Decompiled}"
 GAME_CODE_GRAPH_OUT="${SE2_DEV_GAME_CODE_GRAPH_OUT:-Data}"
-se2_dev_graphify_prepare "se2-dev-game-code" "$GAME_CODE_GRAPH_ROOT" "$GAME_CODE_GRAPH_OUT"
+if [ "$NEED_COMMIT" = 1 ]; then
+    GAME_CODE_SOURCE_STATE=changed
+else
+    GAME_CODE_SOURCE_STATE=unchanged
+fi
+se2_dev_graphify_prepare "se2-dev-game-code" "$GAME_CODE_GRAPH_ROOT" "$GAME_CODE_GRAPH_OUT" "$GAME_CODE_SOURCE_STATE"
 
 : >Prepare.DONE
 log "DONE"
