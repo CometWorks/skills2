@@ -279,6 +279,12 @@ se2_dev_graphify_run_build() {
 
     # Only pass --out when it differs from the root, so the default invocation
     # stays byte-identical to what the other skills have always run.
+    #
+    # The expansion is guarded rather than plain: callers source this under
+    # `set -u`, and bash before 4.4 (RHEL/CentOS 7 ship 4.2) treats an empty
+    # array expansion as an unbound variable. se2-dev-plugin passes no output
+    # directory, so the array IS empty there and the graph build would abort on
+    # those systems.
     local out_args=()
     if [ "$outdir" != "$root" ]; then
         out_args=(--out "$outdir")
@@ -287,16 +293,16 @@ se2_dev_graphify_run_build() {
     case "$status" in
         ok)
             log "Graphify: updating $label graph of $root at $outdir/graphify-out"
-            graphify "$root" --update "${out_args[@]}" || log "WARNING: Graphify update failed for $label; prepare continues."
+            graphify "$root" --update ${out_args[@]+"${out_args[@]}"} || log "WARNING: Graphify update failed for $label; prepare continues."
             ;;
         incomplete)
             log "Graphify: $label graph is incomplete (clustering missing or interrupted); rebuilding from scratch"
             se2_dev_graphify_clean "$root" "$outdir"
-            graphify "$root" "${out_args[@]}" || log "WARNING: Graphify build failed for $label; prepare continues."
+            graphify "$root" ${out_args[@]+"${out_args[@]}"} || log "WARNING: Graphify build failed for $label; prepare continues."
             ;;
         *)
             log "Graphify: building $label graph of $root at $outdir/graphify-out"
-            graphify "$root" "${out_args[@]}" || log "WARNING: Graphify build failed for $label; prepare continues."
+            graphify "$root" ${out_args[@]+"${out_args[@]}"} || log "WARNING: Graphify build failed for $label; prepare continues."
             ;;
     esac
 }
