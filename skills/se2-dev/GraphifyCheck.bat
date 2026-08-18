@@ -4,10 +4,12 @@ setlocal EnableExtensions EnableDelayedExpansion
 REM Standalone Graphify health check (Windows).
 REM
 REM Usage: GraphifyCheck.bat [graph-root]
-REM   graph-root  Directory containing graphify-out\ (default: Data\Decompiled)
+REM   graph-root  Directory containing graphify-out\ (default: Data). This is not
+REM               always the directory that was graphed: se2-dev-game-code graphs
+REM               Data\Decompiled but stores the graph beside it, in Data.
 REM
 REM Shared by every se2-dev-* subskill; call it as ..\se2-dev\GraphifyCheck.bat
-REM from the subskill folder and pass that subskill's graph root (Data\Decompiled
+REM from the subskill folder and pass where that subskill keeps its graph (Data
 REM for se2-dev-game-code, Data\Sources for se2-dev-plugin).
 REM
 REM Exit codes: 0 ok, 2 missing, 3 incomplete.
@@ -17,7 +19,7 @@ REM fallback); confirm with the user before doing it. Small corpora such as the
 REM downloaded plugin sources rebuild quickly.
 
 set "ROOT=%~1"
-if "%ROOT%"=="" set "ROOT=Data\Decompiled"
+if "%ROOT%"=="" set "ROOT=Data"
 
 if not exist "%ROOT%\" (
     echo FAIL: graph root does not exist: %ROOT%

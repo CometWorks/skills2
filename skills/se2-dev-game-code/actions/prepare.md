@@ -72,7 +72,7 @@ The preparation script:
 - Creates the `Data` junction (Windows) / symlink (Linux) pointing to the per-user data folder (`%USERPROFILE%\.se2-dev\game-code\` on Windows, `~/.se2-dev/game-code/` on Linux)
 - Initialises a local Git repository inside `Data/` on first run (with an initial commit of `.gitignore`)
 - Detects the current game version directly from the binaries
-- Wipes `Data/Decompiled`, `Data/Content` and `Data/CodeIndex` whenever the version differs from the recorded one (older versions remain in the local Git history)
+- Wipes `Data/Decompiled`, `Data/Content`, `Data/CodeIndex` and `Data/graphify-out` whenever the version differs from the recorded one (older versions remain in the local Git history)
 - Decompiles the game DLLs to C# and optionally to IL code (needs uncommenting a line in `decompile_dll.sh` if this is required)
 - Records the new game version in `Data/game_version.txt` and commits the decompiled sources with the version label as the commit message
 - Copies game content data into `Data/Content`

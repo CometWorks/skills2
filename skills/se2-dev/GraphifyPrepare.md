@@ -89,12 +89,18 @@ set SE2_DEV_GRAPHIFY_PLATFORM=codex        REM Windows
 
 ## Graph roots
 
-Prepare builds one graph per subskill, under that root's own `graphify-out/` directory:
+Prepare builds one graph per subskill. Graph output goes to
+`<graph root>/graphify-out` unless the skill passes a separate output directory
+(third argument of `se2_dev_graphify_prepare` / `GraphifyPrepare.bat`).
 
-| Subskill | Default graph root | Override |
-|----------|--------------------|----------|
-| `se2-dev-plugin` | downloaded plugin sources (`Data/Sources`) | `SE2_DEV_PLUGIN_PROJECT_ROOT` |
-| `se2-dev-game-code` | decompiled game code (`Data/Decompiled`) | `SE2_DEV_GAME_CODE_GRAPH_ROOT` |
+| Subskill | Default graph root | Graph stored in | Override |
+|----------|--------------------|-----------------|----------|
+| `se2-dev-plugin` | downloaded plugin sources (`Data/Sources`) | inside the graph root | `SE2_DEV_PLUGIN_PROJECT_ROOT` |
+| `se2-dev-game-code` | decompiled game code (`Data/Decompiled`) | `Data` (`SE2_DEV_GAME_CODE_GRAPH_OUT`) | `SE2_DEV_GAME_CODE_GRAPH_ROOT` |
+
+`se2-dev-game-code` keeps the graph out of the graphed tree because `Data/Decompiled`
+is a Git repository holding only decompiled C#; a ~1.8 GB graph inside it would be
+swept into every version commit.
 
 Use the override variables when the subskill should graph a specific active project
 instead of the default prepared corpus.
@@ -148,14 +154,18 @@ To check a graph's health independently, run the standalone checker:
 
 ```bash
 # Linux (from the subskill folder)
-bash ../se2-dev/graphify_check.sh Data/Decompiled          # fast: file presence
-bash ../se2-dev/graphify_check.sh Data/Decompiled --deep   # also validates clustering content
+bash ../se2-dev/graphify_check.sh Data          # fast: file presence
+bash ../se2-dev/graphify_check.sh Data --deep   # also validates clustering content
 ```
 
 ```bat
 REM Windows
-call ..\se2-dev\GraphifyCheck.bat Data\Decompiled
+call ..\se2-dev\GraphifyCheck.bat Data
 ```
+
+The argument is the directory that *contains* `graphify-out/`. For `se2-dev-game-code`
+that is `Data` (it graphs `Data/Decompiled` but stores the graph beside it);
+`se2-dev-plugin` keeps the graph inside the graphed tree, so pass `Data/Sources`.
 
 Pass `Data/Sources` instead when checking the `se2-dev-plugin` graph.
 

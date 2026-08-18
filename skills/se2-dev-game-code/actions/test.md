@@ -26,6 +26,9 @@ Or redirect output to a file for review:
 .\test_search_game_code.bat > test_results.txt 2>&1
 ```
 
+Both wrappers run the same checks from `test_search_code.py`, so Linux and
+Windows results are identical.
+
 ## What the Tests Cover
 
 The test suite exercises all game code search capabilities:
@@ -43,8 +46,11 @@ The test suite exercises all game code search capabilities:
 | Field usage | Update (regex), Position |
 | Interface declaration | IEntityContainer, IEntityLifetime |
 | Interface usage | IEntityContainer |
-| Enum declaration | Type |
+| Enum declaration | Type, EntityType |
 | Enum usage | Type |
+| Enum member declaration | None (plus a lower bound on the total) |
+| Delegate declaration | ExternalApi (nested delegate keeps its own name) |
+| Property declaration | Position |
 | Namespace filtering | Keen.Game2 |
 | Pagination | limit and offset options |
 | Count mode | counting results instead of listing |
@@ -56,29 +62,34 @@ The test suite exercises all game code search capabilities:
 | Hierarchy - interface children | IEntityContainer |
 | Hierarchy - class implements | Entity |
 | Hierarchy - interface implementors | IEntityContainer |
+| Member usage vs enclosing method | Update, Dispose, Entity |
 | Non-matching examples | Verify empty results don't crash |
 
 ## Verifying Results
 
-A successful test run should:
+Each check asserts its own outcome, so reading the output is optional - the exit
+code is authoritative:
 
-1. **Complete without errors** - No Python exceptions or crashes
-2. **Return results for known items** - Each search (except non-matching examples) should return at least one result
-3. **Show "NO-MATCHES"** for the non-matching examples section
-4. **End with "ALL TESTS COMPLETED"** message
+- **Exit code 0** and a final `ALL TESTS COMPLETED` banner - everything passed
+- **Exit code 1**, `FAIL:` lines next to the failing checks and a `TESTS FAILED`
+  banner - the `SUMMARY` section lists every failure
+
+Searches that find nothing print `NO-MATCHES`, which is the expected result only
+in the non-matching examples section and in the checks that assert a symbol must
+*not* be found.
 
 ## Example Verification
 
 Check that key searches return expected results:
 
-```cmd
-REM Should find the Entity class
+```bash
+# Should find the Entity class
 uv run search_game_code.py class declaration Entity
 
-REM Should find Vector3D struct
+# Should find Vector3D struct
 uv run search_game_code.py struct declaration Vector3D
 
-REM Should return count > 0
+# Should return count > 0
 uv run search_game_code.py -c class usage Entity
 ```
 
@@ -110,7 +121,12 @@ REM Windows
 .\test_graphify_game_code.bat
 ```
 
-It first runs a health check (graph built and clustered), then a few `query`/`explain`/`path`/`affected`
-calls, ending with `ALL TESTS COMPLETED`. If it stops at the health check, the graph is
+It first runs a health check (graph built and clustered), then asserted
+`query`/`explain`/`path`/`affected` calls from `test_graphify_queries.py`, ending with
+`ALL TESTS COMPLETED` and exit code 0. If it stops at the health check, the graph is
 missing or unusable (clustering not finished); rebuild it with `SE2_DEV_GRAPHIFY=1` after
 confirming the ~10-30 minute cost with the user.
+
+An `explain` check fails when the name resolves to a node without a source location. That
+means Graphify's fuzzy matching settled on a stub node instead of the real symbol - see
+[GraphifyUsage.md](../../se2-dev/GraphifyUsage.md#name-resolution-pitfalls).

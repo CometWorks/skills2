@@ -43,6 +43,8 @@ namespace,declaring_type,method,symbol_name,type,file_path,start_line,end_line,d
 | `struct_usages.csv` | Struct references |
 | `enum_declarations.csv` | Enum declarations |
 | `enum_usages.csv` | Enum references |
+| `enum_member_declarations.csv` | Enum member declarations (declarations only, no usage form) |
+| `delegate_declarations.csv` | Delegate declarations (declarations only, no usage form) |
 | `method_declarations.csv` | Method declarations |
 | `method_usages.csv` | Method call sites |
 | `field_declarations.csv` | Field declarations |
@@ -128,13 +130,13 @@ implementing_namespace,implementing_type,interfaces,file_path,start_line,end_lin
 
 - `implementing_namespace` - Namespace of the implementing class/struct
 - `implementing_type` - Name of the class/struct
-- `interfaces` - **Comma-separated** list of fully-qualified interface names (format: `Namespace.InterfaceName`)
+- `interfaces` - **Semicolon-separated** list of fully-qualified interface names (format: `Namespace.InterfaceName`); generic arguments are kept, and their commas are why the separator is a semicolon
 - `file_path` - Source file containing the class/struct declaration
 - `start_line`, `end_line` - Location of the class/struct declaration
 
 **Example row:**
 ```csv
-Keen.Game2.Simulation.WorldObjects.CubeGrids,CubeGridComponent,"Keen.VRage.Core.Game.Systems.IInSceneListener,Keen.Game2.Simulation.WorldObjects.Shared.IDisplayNameProvider",Game2.Simulation/Keen/Game2/Simulation/WorldObjects/CubeGrids/CubeGridComponent.cs,59,1754
+Keen.Game2.Simulation.WorldObjects.CubeGrids,CubeGridComponent,Keen.VRage.Core.Game.Systems.IInSceneListener;Keen.Game2.Simulation.WorldObjects.Shared.IDisplayNameProvider,Game2.Simulation/Keen/Game2/Simulation/WorldObjects/CubeGrids/CubeGridComponent.cs,59,1754
 ```
 
 ## Tree Visualization Files
@@ -248,7 +250,7 @@ class InterfaceHierarchyEntry:
 class InterfaceImplementationEntry:
     implementing_namespace: str
     implementing_type: str
-    interfaces: str  # Comma-separated
+    interfaces: str  # Semicolon-separated
     file_path: str
     start_line: int
     end_line: int
@@ -344,6 +346,8 @@ CATEGORY_FILES = {
     "class": ("class_declarations.csv", "class_usages.csv"),
     "method": ("method_declarations.csv", "method_usages.csv"),
     "enum": ("enum_declarations.csv", "enum_usages.csv"),
+    "enum_member": ("enum_member_declarations.csv", None),
+    "delegate": ("delegate_declarations.csv", None),
     "struct": ("struct_declarations.csv", "struct_usages.csv"),
     "interface": ("interface_declarations.csv", "interface_usages.csv"),
     "field": ("field_declarations.csv", "field_usages.csv"),

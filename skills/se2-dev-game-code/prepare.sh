@@ -66,7 +66,47 @@ ensure_git_repo "Data"
 # 4. Link the game's Game2 folder so the decompiler can read its assemblies.
 ensure_temp_link "Game2" "$GAME_ROOT/Game2"
 
-# 5. Decide whether the recorded decompilation is still current.
+# 5. Bring the Data folder up to the current layout, BEFORE the version check
+# below. An existing install carries a Data/Content that used to be ignored; the
+# migration commits it under the recorded game version so the next version's
+# content shows up as a reviewable diff rather than a wholesale addition.
+# Decompiled holds only decompiled C# code; graphify-out sits beside it. Earlier
+# versions of this skill kept the graph inside Decompiled, where the version
+# commit would have swept its ~1.8 GB into the repository.
+if [ -d Data/Decompiled/graphify-out ]; then
+    if [ -d Data/graphify-out ]; then
+        rm -rf Data/Decompiled/graphify-out
+    else
+        log "Moving Data/Decompiled/graphify-out up to Data/graphify-out"
+        mv Data/Decompiled/graphify-out Data/graphify-out
+    fi
+fi
+
+MIGRATED=0
+# Content is versioned, so it must not be ignored (older installs ignored it).
+if grep -qxF 'Content/' Data/.gitignore 2>/dev/null; then
+    grep -vxF 'Content/' Data/.gitignore >Data/.gitignore.tmp
+    mv Data/.gitignore.tmp Data/.gitignore
+    MIGRATED=1
+fi
+# The Graphify graph is a large regenerable artifact, so it must be ignored.
+# This has to be in place before any commit, all of which stage everything.
+if ! grep -qxF 'graphify-out/' Data/.gitignore 2>/dev/null; then
+    echo 'graphify-out/' >>Data/.gitignore
+    MIGRATED=1
+fi
+if [ "$MIGRATED" = 1 ]; then
+    log "Migrating the Data layout (versioning Content, ignoring graphify-out)"
+    git -C Data add -A
+    git -C Data \
+        -c user.name="se2-dev-skills" \
+        -c user.email="se2-dev-skills@localhost" \
+        commit -m "Data layout migration: version Content, ignore graphify-out" >/dev/null \
+        || log "(No migration commit made: nothing to commit)"
+fi
+
+# 6. Decide whether the recorded decompilation is still current.
+NEED_COMMIT=0
 log "Checking current game version"
 set +e
 uv run python -u check_version.py Game2 Data >version_check.txt
@@ -78,7 +118,9 @@ case "$RC" in
         ;;
     2)
         log "Game version differs or no previous version recorded - wiping stale outputs"
-        rm -rf Data/Decompiled Data/CodeIndex Data/Content
+        # Data files are incomplete until preparation finishes for the new game version
+        rm -f Prepare.DONE
+        rm -rf Data/Decompiled Data/CodeIndex Data/Content Data/graphify-out
         mkdir -p Data/Decompiled
         ;;
     *)
@@ -87,12 +129,25 @@ case "$RC" in
         ;;
 esac
 
-# 6. Decompile the game assemblies (skipped if already done for this version).
+# 7. Decompile the game assemblies (skipped if already done for this version).
 if [ ! -d Data/Decompiled/VRage.Water ]; then
     log "Decompiling the game assemblies"
     ILSPYCMD="$ILSPYCMD" ./decompile.sh
+    NEED_COMMIT=1
+fi
 
-    log "Recording game version and committing decompiled sources"
+# 8. Copy indexable game content. Only the indexable text files are copied (no
+# binaries), so the definition files can be versioned and their changes reviewed
+# across game versions.
+if [ ! -d Data/Content ]; then
+    log "Copying indexable content"
+    uv run python -u copy_content.py "$GAME_ROOT/GameData/Vanilla/Content"
+    NEED_COMMIT=1
+fi
+
+# 9. Record the game version and commit the decompiled sources and content.
+if [ "$NEED_COMMIT" = 1 ]; then
+    log "Recording game version and committing decompiled sources and content"
     uv run python -u check_version.py --write Game2 Data
     GAME_VERSION_LABEL="$(uv run python -u check_version.py --print Game2)"
     [ -n "$GAME_VERSION_LABEL" ] || fail "Could not determine the game version label."
@@ -106,33 +161,30 @@ if [ ! -d Data/Decompiled/VRage.Water ]; then
         || log "(No commit made: working tree clean or nothing to commit)"
 fi
 
-# 7. Remove the transient Game2 symlink (the game install is untouched).
+# 10. Remove the transient Game2 symlink (the game install is untouched).
 [ -L Game2 ] && rm -f Game2
 
-# 8. Copy indexable game content.
-if [ ! -d Data/Content ]; then
-    log "Copying indexable content"
-    uv run python -u copy_content.py "$GAME_ROOT/GameData/Vanilla/Content"
-fi
-
-# 9. Build the code index.
+# 11. Build the code index.
 if [ ! -f Data/CodeIndex/class_declarations.csv ]; then
     log "Indexing decompiled code"
     mkdir -p Data/CodeIndex
     uv run python -OO -u index_code.py Data/Decompiled Data/CodeIndex
 fi
 
-# 10. Build the content index.
+# 12. Build the content index.
 if [ ! -f Data/CodeIndex/content_index.csv ]; then
     log "Indexing content files"
     uv run python -u index_content.py Data/Content Data/Decompiled Data/CodeIndex
 fi
 
-# 11. Optionally build the Graphify graph for the decompiled game code. Auto-builds
+# 13. Optionally build the Graphify graph for the decompiled game code. Auto-builds
 #     with the fast Rust backend; otherwise stays opt-in (SE2_DEV_GRAPHIFY=1). This
 #     is supplemental — a failure here never fails the core preparation.
+#     Only the decompiled C# code is graphed; the graph itself is written beside it
+#     (Data/graphify-out) so it never pollutes the graphed tree or the repository.
 GAME_CODE_GRAPH_ROOT="${SE2_DEV_GAME_CODE_GRAPH_ROOT:-Data/Decompiled}"
-se2_dev_graphify_prepare "se2-dev-game-code" "$GAME_CODE_GRAPH_ROOT"
+GAME_CODE_GRAPH_OUT="${SE2_DEV_GAME_CODE_GRAPH_OUT:-Data}"
+se2_dev_graphify_prepare "se2-dev-game-code" "$GAME_CODE_GRAPH_ROOT" "$GAME_CODE_GRAPH_OUT"
 
 : >Prepare.DONE
 log "DONE"

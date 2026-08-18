@@ -2,7 +2,7 @@
 name: se2-dev-game-code
 description: Allows reading the decompiled C# code of Space Engineers 2
 license: MIT
-allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*test_graphify_game_code*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
+allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*test_graphify_game_code*), Bash(*uv run test_search_code.py*), Bash(*uv run test_graphify_queries.py*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
 # SE2 Game Code Search Skill
@@ -56,12 +56,13 @@ After preparation the skill folder contains a `Data` junction (Windows) or symli
 ```
 skills/se2-dev-game-code/
 ├── Data/                 (junction/symlink → per-user persistent game-code data)
-│   ├── .git/             local Git repository tracking decompiled sources
-│   ├── .gitignore        ignores CodeIndex/, Content/, __pycache__, *.py[cod], *.bak, *.log
+│   ├── .git/             local Git repository tracking decompiled sources and content
+│   ├── .gitignore        ignores CodeIndex/, graphify-out/, __pycache__, *.py[cod], *.bak, *.log
 │   ├── game_version.txt  recorded SE2 version label
-│   ├── Decompiled/       decompiled C# sources, organised per assembly (committed)
-│   ├── Content/          textual game content (NOT committed - regenerated)
-│   └── CodeIndex/        CSV indexes (NOT committed - regenerated)
+│   ├── Decompiled/       decompiled C# sources only, organised per assembly (committed)
+│   ├── Content/          textual game content (committed - definition changes reviewable)
+│   ├── CodeIndex/        CSV indexes (NOT committed - regenerated)
+│   └── graphify-out/     Graphify graph of Decompiled/ (NOT committed - regenerated)
 ├── Game2/                (junction/symlink → game's Game2, removed after preparation)
 └── ...                   skill scripts and documentation
 ```
@@ -74,12 +75,12 @@ Treat `Data/Decompiled`, `Data/Content` and `Data/CodeIndex` the same way on eve
 
 ## Local Versioning of Decompiled Sources
 
-The `Data` folder is a local Git repository. Every successful preparation creates a commit of the decompiled C# sources whose message is the game's version label.
+The `Data` folder is a local Git repository. Every successful preparation creates a commit of the decompiled C# sources **and the copied content files** whose message is the game's version label. Only the indexable text content is copied (definitions, translations, blueprints, shaders), never the binary assets, so definition changes stay reviewable and diffable across game versions.
 
 This means:
 
-- **All previously decompiled game versions are preserved** in the local Git history. You can `git checkout` any past commit inside `Data/` to inspect or diff against an older build.
-- **Game updates are detected automatically** by comparing the binaries' embedded version with `Data/game_version.txt`. If they differ (or the file is missing), `Decompiled/`, `Content/` and `CodeIndex/` are wiped and a fresh decompilation runs.
+- **All previously decompiled game versions are preserved** in the local Git history. You can `git checkout` any past commit inside `Data/` to inspect or diff against an older build, and `git diff` two version commits to see what a game update changed in both the code and the content definitions.
+- **Game updates are detected automatically** by comparing the binaries' embedded version with `Data/game_version.txt`. If they differ (or the file is missing), `Decompiled/`, `Content/`, `CodeIndex/` and `graphify-out/` are wiped and a fresh decompilation runs.
 - This makes it easy to **update plugins for compatibility with new game releases**: diff the relevant source between two commits inside `Data/` to see exactly what changed.
 
 The repository uses an internal author/email (`se2-dev-skills@localhost`) so commits work even on machines without a configured global Git identity.
@@ -87,7 +88,9 @@ The repository uses an internal author/email (`se2-dev-skills@localhost`) so com
 ## Graphify Graph (optional)
 
 Preparation can build a separate Graphify graph for the decompiled game code under
-`Data/Decompiled` (or `SE2_DEV_GAME_CODE_GRAPH_ROOT`). It is a navigable map of
+`Data/Decompiled` (or `SE2_DEV_GAME_CODE_GRAPH_ROOT`). The graph is written beside the
+graphed tree, to `Data/graphify-out` (or `SE2_DEV_GAME_CODE_GRAPH_OUT`), so `Data/Decompiled`
+holds nothing but decompiled C# code and the graph never reaches the repository. It is a navigable map of
 call/inherit/reference edges plus clustered communities that answers *structural*
 questions the CSV code index cannot. Prepare installs Graphify on **Python 3.12 with the
 fast native Rust Leiden clustering backend** and, when that backend is available (needs
@@ -103,8 +106,8 @@ The Graphify tooling is shared by all `se2-dev-*` skills and lives in the
 Health check and query test (only meaningful once a graph is built):
 
 ```bash
-bash ../se2-dev/graphify_check.sh Data/Decompiled --deep   # is the graph usable?
-./test_graphify_game_code.sh                               # run a few graph queries
+bash ../se2-dev/graphify_check.sh Data --deep   # is the graph usable?
+./test_graphify_game_code.sh                   # run a few graph queries
 ```
 
 ## Essential Documentation

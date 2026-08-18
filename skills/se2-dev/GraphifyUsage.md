@@ -20,13 +20,17 @@ A graph is only usable once clustering has finished. Check first:
 
 ```bash
 # Linux, from the subskill folder
-bash ../se2-dev/graphify_check.sh Data/Decompiled --deep
+bash ../se2-dev/graphify_check.sh Data --deep
 ```
 
 ```bat
 REM Windows
-call ..\se2-dev\GraphifyCheck.bat Data\Decompiled
+call ..\se2-dev\GraphifyCheck.bat Data
 ```
+
+The argument is the directory that *contains* `graphify-out/`. For `se2-dev-game-code`
+that is `Data` (it graphs `Data/Decompiled` but stores the graph beside it);
+`se2-dev-plugin` keeps the graph inside the graphed tree, so pass `Data/Sources`.
 
 `OK` means ready. `MISSING`/`INCOMPLETE` means it must be (re)built — see
 [GraphifyPrepare.md](GraphifyPrepare.md#health-check-and-rebuild). Confirm the rebuild
@@ -45,13 +49,14 @@ export GRAPHIFY_MAX_GRAPH_BYTES=2GB
 
 The plugin-sources graph is far smaller and does not normally hit the cap.
 
-Run graphify from the graph root (`Data/Decompiled` or `Data/Sources`) so it finds
+Run graphify from the directory holding `graphify-out/` (`Data` for
+`se2-dev-game-code`, `Data/Sources` for `se2-dev-plugin`) so it finds
 `graphify-out/graph.json` by default, or pass `--graph <path>`.
 
 ## Query commands
 
 ```bash
-cd Data/Decompiled
+cd Data
 
 # BFS traversal answering a natural-language question (default 2000-token budget)
 graphify query "How is an entity created and updated?" --budget 400
@@ -78,6 +83,41 @@ Node names are matched fuzzily; `path`/`explain` may warn when a name is ambiguo
 pick the best match. If `query` returns *No matching nodes found*, try a different symbol
 or a phrasing that mentions a concrete type/method name.
 
+## Name resolution pitfalls
+
+Fuzzy matching can settle on a **stub node** - a name that appears in some other file's
+extraction, carrying no source location and a single edge. It looks like a successful
+answer but tells you nothing. Always check the `Source:` line:
+
+```
+Node: Entity
+  ID:        game2_simulation_..._somefile_cs_entity
+  Source:                  <-- empty: this is a stub, not the real Entity
+  Degree:    1
+```
+
+A real hit has a populated `Source:` (a file path plus a line number) and a degree in the
+dozens or hundreds. When you land on a stub:
+
+- retry with a more distinctive name (`CubeGridComponent` rather than `Entity`), or
+- look the symbol up with the code index first (`search_game_code.py class declaration ...`)
+  and use the exact declared name.
+
+An `ambiguous match` warning on `path` means the same - verify the endpoints resolved to
+the symbols you meant before trusting the path.
+
+## What the graph is good and bad at
+
+- `explain`, `path` and `affected` on a **named symbol** are the reliable modes; they
+  answer questions the CSV index cannot (how symbols connect, impact of a change).
+- `query` with a **natural-language question** spends much of its token budget on hub
+  nodes (`System`, `Vector3`, `Entity`, ...) that everything references. Prefer naming
+  a concrete type, keep `--budget` small and follow up with `explain` on what looks
+  relevant.
+- `--context call` is sparse on the decompiled tree: most extracted edges are
+  `references`, `inherits` and `implements`, so narrowing to `call` often returns almost
+  nothing. Drop the filter, or use `affected` instead.
+
 ## Verifying a prepared graph
 
 `se2-dev-game-code` ships a query smoke test that runs a representative set of the commands
@@ -93,5 +133,7 @@ REM Windows
 .\test_graphify_game_code.bat
 ```
 
-A healthy run ends with `ALL TESTS COMPLETED`. If it stops at the health check, the graph
-is missing or unusable and must be rebuilt.
+Every check asserts its outcome, so the exit code is authoritative: 0 with a final
+`ALL TESTS COMPLETED` banner means all queries answered, 1 with a `TESTS FAILED` banner
+lists what failed. If it stops at the health check, the graph is missing or unusable and
+must be rebuilt.

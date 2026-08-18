@@ -183,9 +183,11 @@ ensure_git_repo() {
     # master" hint; the symbolic-ref fallback covers older git versions.
     git -C "$repo_dir" -c init.defaultBranch=main init >/dev/null
     git -C "$repo_dir" symbolic-ref HEAD refs/heads/main 2>/dev/null || true
+    # Data/Content is versioned (only indexable text files are copied), so it
+    # has no entry here. The Graphify graph is large and regenerable, so it does.
     cat >"$repo_dir/.gitignore" <<'EOF'
 CodeIndex/
-Content/
+graphify-out/
 __pycache__/
 *.py[cod]
 *.bak

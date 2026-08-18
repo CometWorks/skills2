@@ -3,6 +3,9 @@ import sys
 from pathlib import Path
 from typing import Set
 
+# Sits beside Decompiled rather than inside it: Decompiled holds only decompiled
+# C# code. Content is versioned in the local Git repository all the same, so
+# changes to the definition files can be reviewed across game versions.
 CONTENT_DST = Path('Data') / 'Content'
 
 

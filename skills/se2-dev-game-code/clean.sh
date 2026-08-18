@@ -2,7 +2,8 @@
 # clean.sh - POSIX counterpart of Clean.bat. Removes everything prepare.sh
 # creates inside the skill folder. The Data folder (a symlink to
 # ~/.se2-dev/game-code) is preserved: only the symlink itself is removed so the
-# actual contents (Decompiled, CodeIndex, Content, .git) survive across runs.
+# actual contents (Decompiled, Content, CodeIndex, graphify-out, .git) survive
+# across runs.
 set -u
 cd "$(dirname "$(readlink -f "$0")")"
 
