@@ -191,13 +191,22 @@ rebuilding the game-code graph that way.
 
 ## Corpus content and API keys
 
-Graphify builds a **code-only** graph with no API key. It treats `.md`, `.txt`, `.rst`,
-`.yaml`, `.yml`, `.html` and similar files as *documents* that need LLM-based semantic
-extraction, and the build fails if any are present and no key (`ANTHROPIC_API_KEY`,
-`GEMINI_API_KEY`, …) is set. The decompiled game corpus is pure `.cs`/`.il` and builds
-keyless, but mixed corpora do not — plugin repositories frequently ship a `README.md` and
-other docs. To graph only the code in a mixed corpus without a key, add a `.graphifyignore`
-(gitignore syntax) at the graph root (e.g. `Data/Sources/`) excluding the doc extensions.
+Prepare always builds a **code-only** graph and never uses an API key. Graphify treats
+`.md`, `.txt`, `.rst`, `.yaml`, `.yml`, `.html` and similar files as *documents* that
+need LLM-based semantic extraction, and it aborts the **whole** build on the first such file when no key
+(`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, …) is set — even though the code was already
+indexed locally by the AST extractor. The decompiled game corpus is pure `.cs`/`.il` and
+builds keyless, but mixed corpora do not — plugin repositories frequently ship a
+`README.md` and other docs.
+
+Every build therefore excludes those file types (`SE2_DEV_GRAPHIFY_EXCLUDES` in
+`graphify_prepare.sh`, `GRAPHIFY_EXCLUDES` in `GraphifyPrepare.bat`). No API key is used
+and no LLM call is ever made. Graphify has no `--code-only` flag and silently ignores
+unknown options, so `--exclude` is what actually keeps the build local.
+
+Outside prepare, run `graphify` yourself with the same `--exclude` globs, or add a
+`.graphifyignore` (gitignore syntax) at the graph root (e.g. `Data/Sources/`) excluding
+the doc extensions.
 
 ## Failure behavior
 
@@ -209,6 +218,9 @@ Graphify is supplemental. Prepare logs a warning and continues if:
 - `graphify` is not on `PATH` after installation,
 - the selected graph root does not exist (e.g. no plugin sources downloaded yet),
 - graph creation or update fails.
+
+A missing LLM API key is not one of these: prepare always excludes the doc/paper/image
+files (see [Corpus content and API keys](#corpus-content-and-api-keys)).
 
 Core preparation still succeeds when its own steps (decompilation, registry download,
 indexing) succeed.

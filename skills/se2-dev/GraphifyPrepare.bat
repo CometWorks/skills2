@@ -29,6 +29,10 @@ REM cap, which would abort every build and update. Raise it, but let an explicit
 REM set value win so a larger corpus can be accommodated without editing this file.
 if "%GRAPHIFY_MAX_GRAPH_BYTES%"=="" set "GRAPHIFY_MAX_GRAPH_BYTES=2GB"
 
+REM Code-only extraction: graphify must never call an LLM. Only doc, paper and image
+REM files would take it there, so exclude those file types; the corpora are C# anyway.
+set "GRAPHIFY_EXCLUDES=--exclude *.md --exclude *.mdx --exclude *.qmd --exclude *.txt --exclude *.rst --exclude *.html --exclude *.yaml --exclude *.yml --exclude *.pdf --exclude *.png --exclude *.jpg --exclude *.jpeg --exclude *.gif --exclude *.webp --exclude *.svg"
+
 if "%SE2_DEV_GRAPHIFY%"=="0" (
     echo Graphify: skipping %GRAPHIFY_LABEL% ^(SE2_DEV_GRAPHIFY=0^)
     exit /b 0
@@ -84,6 +88,7 @@ where graphify >NUL 2>NUL
 if %ERRORLEVEL% NEQ 0 exit /b 0
 
 :have_graphify
+echo Graphify: indexing %GRAPHIFY_LABEL% code only ^(no LLM API key needed; docs and images are skipped^)
 for %%I in ("%GRAPHIFY_ROOT%") do set "GRAPHIFY_ABS_ROOT=%%~fI"
 if not exist "%GRAPHIFY_OUT_DIR%\" mkdir "%GRAPHIFY_OUT_DIR%" 2>NUL
 for %%I in ("%GRAPHIFY_OUT_DIR%") do set "GRAPHIFY_ABS_OUT_DIR=%%~fI"
@@ -107,9 +112,9 @@ echo Graphify: updating %GRAPHIFY_LABEL% graph of %GRAPHIFY_ABS_ROOT% at %GRAPHI
 REM --out is passed only when it differs from the root, so the default
 REM invocation stays identical to what the other skills have always run.
 if /I "%GRAPHIFY_ABS_OUT_DIR%"=="%GRAPHIFY_ABS_ROOT%" (
-    graphify "%GRAPHIFY_ABS_ROOT%" --update
+    graphify "%GRAPHIFY_ABS_ROOT%" --update %GRAPHIFY_EXCLUDES%
 ) else (
-    graphify "%GRAPHIFY_ABS_ROOT%" --update --out "%GRAPHIFY_ABS_OUT_DIR%"
+    graphify "%GRAPHIFY_ABS_ROOT%" --update --out "%GRAPHIFY_ABS_OUT_DIR%" %GRAPHIFY_EXCLUDES%
 )
 if %ERRORLEVEL% NEQ 0 echo WARNING: Graphify update failed for %GRAPHIFY_LABEL%; prepare continues.
 exit /b 0
@@ -117,9 +122,9 @@ exit /b 0
 :build
 echo Graphify: building %GRAPHIFY_LABEL% graph of %GRAPHIFY_ABS_ROOT% at %GRAPHIFY_OUT%
 if /I "%GRAPHIFY_ABS_OUT_DIR%"=="%GRAPHIFY_ABS_ROOT%" (
-    graphify "%GRAPHIFY_ABS_ROOT%"
+    graphify "%GRAPHIFY_ABS_ROOT%" %GRAPHIFY_EXCLUDES%
 ) else (
-    graphify "%GRAPHIFY_ABS_ROOT%" --out "%GRAPHIFY_ABS_OUT_DIR%"
+    graphify "%GRAPHIFY_ABS_ROOT%" --out "%GRAPHIFY_ABS_OUT_DIR%" %GRAPHIFY_EXCLUDES%
 )
 if %ERRORLEVEL% NEQ 0 echo WARNING: Graphify build failed for %GRAPHIFY_LABEL%; prepare continues.
 exit /b 0

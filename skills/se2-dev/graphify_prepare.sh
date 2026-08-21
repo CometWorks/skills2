@@ -37,6 +37,16 @@ SE2_DEV_GRAPHIFY_SPEED="slow"
 # set value win so a larger corpus can be accommodated without editing this file.
 export GRAPHIFY_MAX_GRAPH_BYTES="${GRAPHIFY_MAX_GRAPH_BYTES:-2GB}"
 
+# Code-only extraction: graphify must never call an LLM. Only doc, paper and image
+# files would take it there, so exclude those file types; the corpora are C# anyway.
+# The patterns stay quoted so they reach graphify unexpanded.
+SE2_DEV_GRAPHIFY_EXCLUDES=(
+    --exclude '*.md' --exclude '*.mdx' --exclude '*.qmd' --exclude '*.txt'
+    --exclude '*.rst' --exclude '*.html' --exclude '*.yaml' --exclude '*.yml'
+    --exclude '*.pdf' --exclude '*.png' --exclude '*.jpg' --exclude '*.jpeg'
+    --exclude '*.gif' --exclude '*.webp' --exclude '*.svg'
+)
+
 se2_dev_graphify_opt_in()  { [ "${SE2_DEV_GRAPHIFY:-}" = "1" ]; }
 se2_dev_graphify_opt_out() { [ "${SE2_DEV_GRAPHIFY:-}" = "0" ]; }
 
@@ -280,17 +290,16 @@ se2_dev_graphify_run_build() {
     local status
     status="$(se2_dev_graphify_status "$root" "$outdir")"
 
-    # Only pass --out when it differs from the root, so the default invocation
-    # stays byte-identical to what the other skills have always run.
+    # Extra flags for the graphify invocation. --out is passed only when it differs
+    # from the root, so the default invocation stays byte-identical to what the
+    # other skills have always run.
     #
     # The expansion is guarded rather than plain: callers source this under
     # `set -u`, and bash before 4.4 (RHEL/CentOS 7 ship 4.2) treats an empty
-    # array expansion as an unbound variable. se2-dev-plugin passes no output
-    # directory, so the array IS empty there and the graph build would abort on
-    # those systems.
-    local out_args=()
+    # array expansion as an unbound variable.
+    local out_args=("${SE2_DEV_GRAPHIFY_EXCLUDES[@]}")
     if [ "$outdir" != "$root" ]; then
-        out_args=(--out "$outdir")
+        out_args+=(--out "$outdir")
     fi
 
     case "$status" in
