@@ -33,6 +33,7 @@ Folder structure of a client-only plugin:
 Files in the repository root:
 - `<PluginName>.sln`: Solution file, renamed by `setup.py`
 - `<PluginName>.xml`: PluginHub-SE2 registration, renamed by `setup.py`, fill it in before submitting
+  - The `<Description>` element is shown in Pulsar's Plugin Details panel, which wraps the text to the panel's width. Indent it along with the surrounding XML: Pulsar left-shifts the text, so the common leading whitespace of the block is not shown. Keep each paragraph on a single line with blank lines between paragraphs, because hard wrapped lines get re-wrapped and render ragged.
 - `Directory.Build.props`: Paths, deployment folder and plugin version (see above)
 - `setup.py`: One time project setup, see above
 - `clean.bat` / `clean.sh`: Remove the `bin` and `obj` folders
