@@ -72,8 +72,9 @@ reviewed for safety and security on submission, but only on a best effort basis,
 Plugins are running native code and can do anything. When reviewing a submission (or update) to PluginHub-SE2,
 follow [Review.md](Review.md).
 
-Use `se2-dev-game-book` (if installed) to learn how a game system works and which types take
-part, and `se2-dev-game-code` to read the exact code you call or patch.
+Use `se2-dev-game-code` to read the exact code you call or patch. If the `se2-dev-game-book`
+skill is installed, read it first to learn how a game system works and which types take part;
+without it, search the game code for that too.
 
 ## References
 

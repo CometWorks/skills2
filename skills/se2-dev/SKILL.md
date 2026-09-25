@@ -54,12 +54,12 @@ different API surface; SE1 plugins are not SE2 plugins.
 - **[se2-dev-plugin](../se2-dev-plugin/SKILL.md)** — Plugin development (Harmony patching, transpilers, preloader, publicizer). Search plugin source downloaded from PluginHub-SE2, and review submissions to it.
 
 ### Reference skills (read/search the game internals)
-- **`se2-dev-game-book`** — Handbook on how the game client works inside, organized by subsystem, with a page per type. Read it first for any question about how the game does something or which types take part.
-- **[se2-dev-game-code](../se2-dev-game-code/SKILL.md)** — Search the decompiled C# (and IL) of the game client, plus its textual `Content`. The exact code you call or patch.
+- **[se2-dev-game-code](../se2-dev-game-code/SKILL.md)** — Search the decompiled C# (and IL) of the game client, plus its textual `Content`. The exact code you call or patch, and the only reference when the handbook is not installed.
+- **`se2-dev-game-book`** (optional, if installed) — Handbook on how the game client works inside, organized by subsystem, with a page per type. Read it first for any question about how the game does something or which types take part.
 
 The `se2-dev-game-book` handbook is distributed separately and is not part of this public
 repository. When installed, read it before searching code for any question about how the
-game works; without it, `se2-dev-game-code` is the only reference.
+game works; without it, answer those questions from `se2-dev-game-code`.
 
 ### Graphify graphs (read on demand)
 - **[GraphifyPrepare.md](GraphifyPrepare.md)** — how each subskill builds its own per-subskill `graphify-out/`. Prepare installs Graphify on **Python 3.12 with the fast native Rust Leiden clustering backend** and, when that backend is available (Linux/Windows with `uv`), builds the graph **automatically** — clustering then takes ~1-2 minutes even for the decompiled game corpus. Where the fast backend cannot be provisioned, Graphify stays **optional** and only builds on opt-in with `SE2_DEV_GRAPHIFY=1` (the slow single-core fallback adds ~10-30 minutes on the game corpus; small corpora stay quick). `SE2_DEV_GRAPHIFY=0` disables it entirely. Also covers the health check that detects an unusable (unclustered) graph and the clean-and-rebuild flow.
@@ -70,9 +70,9 @@ wants the Graphify graph, so the extra tooling never pollutes context during nor
 
 ## How to pick
 
-- **Writing or fixing a plugin?** → `se2-dev-plugin` + `se2-dev-game-book` + `se2-dev-game-code`.
+- **Writing or fixing a plugin?** → `se2-dev-plugin` + `se2-dev-game-code`, with `se2-dev-game-book` read first if installed.
 - **Reviewing a PluginHub-SE2 submission?** → `se2-dev-plugin`, following its `Review.md`.
-- **Need to understand how the game does X?** → `se2-dev-game-book` first, then `se2-dev-game-code` to confirm the specifics.
+- **Need to understand how the game does X?** → `se2-dev-game-book` first if installed, then `se2-dev-game-code` to confirm the specifics. Without the book, `se2-dev-game-code` alone.
 - **Registering a client-side mod to Pulsar?** → `se2-dev-plugin`, following its `Guide.md`.
 
 Most non-trivial tasks pair the **authoring** skill with a **reference** skill: write with one,
