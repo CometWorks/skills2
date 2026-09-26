@@ -72,8 +72,9 @@ reviewed for safety and security on submission, but only on a best effort basis,
 Plugins are running native code and can do anything. When reviewing a submission (or update) to PluginHub-SE2,
 follow [Review.md](Review.md).
 
-Use the `se2-dev-game-code` skill to search the game's decompiled code. You will need this to
-understand how the game's internals work and how to interface with it and patch it properly.
+Use `se2-dev-game-code` to read the exact code you call or patch. If the `se2-dev-game-book`
+skill is installed, read it first to learn how a game system works and which types take part;
+without it, search the game code for that too.
 
 ## References
 
