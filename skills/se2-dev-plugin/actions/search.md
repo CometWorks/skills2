@@ -150,7 +150,7 @@ A single `Data\plugins.json` keeps track of plugins, with these top-level keys:
 ## Workflow
 
 1. **Find relevant plugins**: Use `list_plugins.py --search` to find plugins with features you want to learn from
-2. **Download sources**: Use `download_plugin_source.py` to get the source code
+2. **Download sources**: Use `download_plugin_source.py` to get the source code of plugins that `list_plugins.py` doesn't show as [LOCAL]
 3. **Index**: Run `index_plugin_code.py` to build the search index
 4. **Search**: Use `search_plugin_code.py` to find code patterns
 

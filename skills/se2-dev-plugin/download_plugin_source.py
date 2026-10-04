@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+r"""
 Download Plugin Source Code from GitHub
 
 Downloads the source code of a plugin from its GitHub repository.
@@ -22,6 +22,9 @@ Regardless of the method, the download is recorded in `Data/plugins.json`,
 with both the commit registered in PluginHub and the commit actually
 checked out locally.
 
+A plugin already present at its registered commit is left as it is: the
+script says where it is and exits without downloading or reindexing.
+
 Usage:
     python download_plugin_source.py <plugin_id_or_name>
 
@@ -42,7 +45,7 @@ import requests
 
 from git_utils import clone_repo, get_head_commit, is_git_available
 from plugin_paths import ensure_plugin_sources_dir, resolve_pluginhub_dir
-from plugin_registry import update_plugin
+from plugin_registry import get_plugin_entry, update_plugin
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
@@ -219,6 +222,16 @@ def _download_via_zip(
     return registered_commit or ""
 
 
+def _present_commit(dest_dir: Path, repo: str) -> str:
+    """Commit of an existing local copy: the git HEAD, or the recorded download for a ZIP extract."""
+    if not dest_dir.exists():
+        return ""
+    if (dest_dir / ".git").exists():
+        return get_head_commit(dest_dir)
+    entry = get_plugin_entry(repo) or {}
+    return entry.get("downloaded_commit", "")
+
+
 def download_plugin(plugin: dict) -> bool:
     """Download a plugin's source code from GitHub."""
     plugin_sources_dir = ensure_plugin_sources_dir()
@@ -242,6 +255,12 @@ def download_plugin(plugin: dict) -> bool:
     owner, repo = parts
     registered_commit = plugin.get("commit", "")
     dest_dir = plugin_sources_dir / repo
+
+    # A copy at the registered commit is already what a download would produce, and it may be read-only
+    if registered_commit and _present_commit(dest_dir, repo) == registered_commit:
+        print(f"Already downloaded at the registered commit {registered_commit[:12]}: {dest_dir}")
+        print("Search it with search_plugin_code.py or read the files there.")
+        return True
 
     if dest_dir.exists():
         print(f"Removing existing directory: {dest_dir}")

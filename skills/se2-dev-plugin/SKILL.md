@@ -91,7 +91,7 @@ Search the source code of plugins from PluginHub-SE2 for examples and patterns:
 uv run list_plugins.py
 uv run list_plugins.py --search "camera"
 
-# Download a plugin's source code (use EXACT name from list)
+# Download a plugin's source code (use EXACT name from list); skip the ones listed as [LOCAL]
 uv run download_plugin_source.py "Plugin Name"
 
 # Index downloaded plugins (automatic after download)
