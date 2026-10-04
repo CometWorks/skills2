@@ -6,15 +6,15 @@ Starting a new plugin project:
 Building the project:
 - In production the plugin is built by the Pulsar plugin loader directly on the player's machine.
 - In development the plugin is built either of these ways:
-  - By the `dotnet` command line tool or by an IDE like VSCode, JetBrains Rider or Visual Studio. The `DeployPlugin` MSBuild target in `ClientPlugin/ClientPlugin.csproj` copies the built DLL into Pulsar's `Local` plugin folder after each successful build. There is no separate deployment script.
-  - By Pulsar using the local development folder feature (needs to be configured in Pulsar, requires the `-sources` option).
+  - By the `dotnet` command line tool or by an IDE like VSCode, JetBrains Rider or Visual Studio. A plain build deploys nothing. Only if `Pulsar` is set (in `Directory.Build.props.user` or with `-p:Pulsar=...`), the `DeployPlugin` MSBuild target in `ClientPlugin/ClientPlugin.csproj` copies the built DLL into Pulsar's `Local` plugin folder after each successful build. There is no separate deployment script. Prefer the development folder below: a deployed DLL shows up as a separate local plugin and can shadow the published one when the dev folder is disabled.
+  - By Pulsar using the local development folder feature (the preferred way to load a working copy) (needs to be configured in Pulsar, requires the `-sources` option).
 - The project targets `net10.0` and references the game assemblies directly from the game's `Game2` folder. It uses `Lib.Harmony` and `Mono.Cecil`. The Krafs publicizer is included, but commented out, see [Publicizer.md](Publicizer.md).
-- Stop the game before building, otherwise the running game locks the deployed DLL and the copy fails.
+- When deploying, stop the game before building, otherwise the running game locks the deployed DLL and the copy fails.
 
 Build configuration (`Directory.Build.props` in the repository root):
 - `Game2`: Folder containing `SpaceEngineers2.exe`, defaults to the Steam installation.
-- `Pulsar`: Folder containing Pulsar's data, defaults to `%AppData%\Pulsar` on Windows and `~/.config/Pulsar` on Linux.
-- `LocalDeploymentDir`: Deployment target of the built DLL, defaults to `$(Pulsar)/Modern/Local`. (`Modern` is Pulsar's SE2 target, `Legacy` and `Interim` are for SE1.)
+- `Pulsar`: Pulsar folder to deploy into, never auto-detected; empty means no deployment (set it to `$(APPDATA)\Pulsar` on Windows or `$(HOME)/.config/Pulsar` on Linux to deploy).
+- `LocalDeploymentDir`: Deployment target of the built DLL, defaults to `$(Pulsar)/Modern/Local` when `Pulsar` is set. (`Modern` is Pulsar's SE2 target, `Legacy` and `Interim` are for SE1.)
 - `Version`: The plugin's version, change it here at a single place.
 
 Example patches:
