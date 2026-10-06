@@ -8,9 +8,7 @@ This guide helps you resolve common issues when searching game code.
 
 1. **Wrong skill**: 
    - Game classes like `CubeGridComponent` → use `se2-dev-game-code` ✅
-   - Mod code → use `se2-dev-mod`
    - Plugin code → use `se2-dev-plugin`
-   - Script code → use `se2-dev-script`
 
 2. **Exact name mismatch**: Try using regex patterns:
    ```bash
@@ -136,11 +134,9 @@ Each skill searches different code:
 | What you need | Skill to use |
 |---------------|--------------|
 | Base game classes (CubeGridComponent, CharacterComponent, GameComponent, etc.) | `se2-dev-game-code` |
-| Mod code examples from Steam Workshop | `se2-dev-mod` |
 | Plugin code from PluginHub-SE2 | `se2-dev-plugin` |
-| PB script examples from Workshop | `se2-dev-script` |
 
-If you're looking for examples of how others use game APIs, use `se2-dev-mod` or `se2-dev-script`.
+If you're looking for examples of how others use game APIs, use `se2-dev-plugin`.
 If you need to understand the game's internal implementation, use `se2-dev-game-code`.
 
 ## Search Tips
