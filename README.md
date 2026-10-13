@@ -9,6 +9,7 @@ A [skill](https://agentskills.io) library for Space Engineers 2 plugin developme
 - Space Engineers 2 (on Linux, installed via Steam/Proton)
 - .NET 10 SDK (used to install `ilspycmd` as a dotnet tool)
 - `git` command line client on `PATH`
+- Only for `se2-dev-plugin-review`: authenticated GitHub CLI (`gh`) on `PATH`, and Python 3.11 or newer as `python3`, since its scripts run without `uv`
 - Python 3.13 or newer on `PATH`
   - On Linux this is optional: [`uv`](https://docs.astral.sh/uv/) provides
     the pinned Python 3.13 for the skills' virtual environments automatically, so
@@ -52,6 +53,7 @@ due to the decompiled source code, the code index and the copied game contents.
 
 * [se2-dev](skills/se2-dev/SKILL.md) – **Start here.** Overview of the SE2 development ecosystem, routes to the skill your task needs, and holds the Graphify tooling shared by the other skills
 * [se2-dev-plugin](skills/se2-dev-plugin/SKILL.md) – Plugin development
+* [se2-dev-plugin-review](skills/se2-dev-plugin-review/SKILL.md) – Security and quality review of PluginHub-SE2 PRs
 * [se2-dev-game-code](skills/se2-dev-game-code/SKILL.md) – Searchable decompiled C# game code
 
 Install `se2-dev` alongside the others: the `se2-dev-*` preparation scripts pick up their

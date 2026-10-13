@@ -51,7 +51,10 @@ different API surface; SE1 plugins are not SE2 plugins.
 ## Skill map
 
 ### Authoring skills (write plugins)
-- **[se2-dev-plugin](../se2-dev-plugin/SKILL.md)** — Plugin development (Harmony patching, transpilers, preloader, publicizer). Search plugin source downloaded from PluginHub-SE2, and review submissions to it.
+- **[se2-dev-plugin](../se2-dev-plugin/SKILL.md)** — Plugin development (Harmony patching, transpilers, preloader, publicizer). Search plugin source downloaded from PluginHub-SE2.
+
+### Review skill
+- **[se2-dev-plugin-review](../se2-dev-plugin-review/SKILL.md)** — Review a PluginHub-SE2 PR: derives the source repository and exact commit range from the hub manifest, audits it, and posts the review after confirmation.
 
 ### Reference skills (read/search the game internals)
 - **[se2-dev-game-code](../se2-dev-game-code/SKILL.md)** — Search the decompiled C# (and IL) of the game client, plus its textual `Content`. The exact code you call or patch, and the only reference when the handbook is not installed.
@@ -71,7 +74,7 @@ wants the Graphify graph, so the extra tooling never pollutes context during nor
 ## How to pick
 
 - **Writing or fixing a plugin?** → `se2-dev-plugin` + `se2-dev-game-code`, with `se2-dev-game-book` read first if installed.
-- **Reviewing a PluginHub-SE2 submission?** → `se2-dev-plugin`, following its `Review.md`.
+- **Reviewing a PluginHub-SE2 submission?** → `se2-dev-plugin-review` + `se2-dev-game-code`.
 - **Need to understand how the game does X?** → `se2-dev-game-book` first if installed, then `se2-dev-game-code` to confirm the specifics. Without the book, `se2-dev-game-code` alone.
 - **Registering a client-side mod to Pulsar?** → `se2-dev-plugin`, following its `Guide.md`.
 
