@@ -65,9 +65,12 @@ class PrepareReviewTests(unittest.TestCase):
 
     def test_validates_plugin_type_and_mod_location(self):
         validate_manifest({"plugin_type": "GitHubPlugin"}, "Plugins/Test.xml")
-        validate_manifest({"plugin_type": "ModPlugin"}, "Plugins/Mods/Test.xml")
+        mod = {"plugin_type": "ModPlugin", "id": "2211605465"}
+        validate_manifest(mod, "Plugins/Mods/Test.xml")
         with self.assertRaisesRegex(ReviewError, "Plugins/Mods/"):
-            validate_manifest({"plugin_type": "ModPlugin"}, "Plugins/Test.xml")
+            validate_manifest(mod, "Plugins/Test.xml")
+        with self.assertRaisesRegex(ReviewError, "numeric"):
+            validate_manifest({**mod, "id": "x"}, "Plugins/Mods/Test.xml")
         with self.assertRaisesRegex(ReviewError, "xsi:type"):
             validate_manifest({"plugin_type": None}, "Plugins/Test.xml")
 

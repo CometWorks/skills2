@@ -15,7 +15,7 @@ Use `--output <directory>` only when the default `~/.se2-dev/reviews/StarCpt-Plu
 1. Validates that the PR belongs to `StarCpt/PluginHub-SE2`.
 2. Fetches PR base/head SHAs and changed `Plugins/*.xml` files through GitHub.
 3. Parses complete base/head XML manifests, including every `<Asset>` element's attributes.
-4. Checks the `xsi:type`: `GitHubPlugin`, or `ModPlugin` beneath `Plugins/Mods/`. A `ModPlugin` gets `review_type: workshop_mod` and no source checkout.
+4. Checks the `xsi:type`: `GitHubPlugin`, or `ModPlugin` beneath `Plugins/Mods/` with a numeric Workshop `<Id>`. A `ModPlugin` gets `review_type: workshop_mod` with its `workshop_id`, `hidden` and `dependencies`, and no source checkout.
 5. Reads `<RepoId>` and authoritative old/new `<Commit>` pins and resolves them to full target-repository SHAs.
 6. Checks out the exact new source SHA.
 7. Selects the audit gate from the manifest change in the hub PR. A first registration or changed `<RepoId>` writes `source-tree.txt` for the complete tracked repository at `new_source_sha`; only a real `<Commit>` bump writes `source.diff` from the direct `old-source-SHA..new-source-SHA` comparison.
@@ -33,7 +33,7 @@ A `metadata_only` result has no source checkout and no asset checks. If its mani
 Run the hub's own validator from the PR head checkout: `python3 test.py Plugins` must print `All files validated`. It checks only the location, `xsi:type`, the presence of `Id`, `FriendlyName`, and `Author`, and a lowercase-hex `Commit` for `GitHubPlugin`. Check the rest yourself:
 
 - A `GitHubPlugin` uses a fresh GUID as `<Id>` and the GitHub `Owner/Repo` as `<RepoId>`. A `ModPlugin` uses the Steam Workshop item id as `<Id>`.
-- A `ModPlugin` names Workshop content, not a GitHub revision, so there is nothing to pin or compile. Check its manifest only; the Workshop content is out of scope for this review.
+- A `ModPlugin` names a Steam Workshop item, not a GitHub revision, so there is nothing to pin, compile or diff. Review it with the `workshop_mod` checks in [ReviewPaths.md](ReviewPaths.md).
 - `Hidden`, `DependencyIds`, `AlternateVersions`, `Runtimes`, `Platforms`, and `GroupId` are optional. Compare them with `SamplePlugin.xml` and `SampleMod.xml` at the hub head.
 
 ## Loader semantics

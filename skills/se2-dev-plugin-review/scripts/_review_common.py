@@ -184,6 +184,10 @@ def validate_manifest(manifest: dict[str, object], path: str) -> None:
             raise ReviewError(
                 f"ModPlugin manifest {path} must be beneath Plugins/Mods/"
             )
+        if not str(manifest.get("id") or "").isdigit():
+            raise ReviewError(
+                f"ModPlugin manifest {path} needs a numeric Workshop <Id>"
+            )
     elif plugin_type != "GitHubPlugin":
         raise ReviewError(f"Invalid xsi:type in {path}: {plugin_type!r}")
 
@@ -478,7 +482,14 @@ def prepare(pr_url: str, output_arg: Path | None) -> int:
             if head_manifest is None:
                 review["review_type"] = "removal"
             elif head_manifest["plugin_type"] == "ModPlugin":
-                review["review_type"] = "workshop_mod"
+                review.update(
+                    {
+                        "review_type": "workshop_mod",
+                        "workshop_id": head_manifest["id"],
+                        "hidden": head_manifest["hidden"],
+                        "dependencies": head_manifest["dependencies"],
+                    }
+                )
             else:
                 repo_id = str(head_manifest.get("repo_id") or "")
                 new_pin = str(head_manifest.get("commit") or "")
@@ -542,6 +553,11 @@ def prepare(pr_url: str, output_arg: Path | None) -> int:
 
         print(f"Prepared {len(reviews)} review(s) for {hub_repo}#{number} at {output}")
         for review in reviews:
+            if review["review_type"] == "workshop_mod":
+                print(
+                    f"{review['manifest_path']}: workshop_mod {review['workshop_id']}"
+                )
+                continue
             target = review.get("target_repo", "-")
             old_sha = review.get("old_source_sha") or "-"
             new_sha = review.get("new_source_sha") or "-"
