@@ -203,7 +203,6 @@ The first folder indicates the assembly (DLL). From the second level, folders ma
 | `Game2.Game` | Game logic and entity components |
 | `Game2.Simulation` | Simulation logic, world objects, cube grids |
 | `Game2.Client` | Client-side game code |
-| `Game2.AutoTests` | Automated tests |
 
 ## Best Practices
 
