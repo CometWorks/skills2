@@ -21,13 +21,13 @@ are a full development target; the rest of this page says what exists now and wh
 | Layer | What it is | Runs as | Status | Skill |
 |-------|-----------|---------|--------|-------|
 | **Plugin** | .NET DLL patching the game with Harmony, loaded by Pulsar | Unsandboxed, full .NET | Available | [`se2-dev-plugin`](../se2-dev-plugin/SKILL.md) |
-| **Mod** | Steam Workshop content, loaded by the game | Sandboxed | Evolving; no dedicated skill yet | see [Guide.md](../se2-dev-plugin/Guide.md) |
+| **Mod** | Steam Workshop content, loaded by the game | Sandboxed | Evolving; no dedicated skill yet | see [se2-dev-plugin-guide](../se2-dev-plugin-guide/Submitting.md) |
 | **In-game script** | Programmable Block code | — | Not yet in SE2 | — |
 
 Plugins run native code with no sandbox — they can do anything, which is why they are open
 source and reviewed before release. Client-side-only workshop mods can be registered to
-Pulsar so its registry lists them; that flow is documented in the plugin skill's
-[Guide.md](../se2-dev-plugin/Guide.md), not in a separate mod skill.
+Pulsar so its registry lists them; that flow is documented in the plugin guide's
+[Submitting.md](../se2-dev-plugin-guide/Submitting.md), not in a separate mod skill.
 
 ## Where plugins run
 
@@ -51,6 +51,7 @@ different API surface; SE1 plugins are not SE2 plugins.
 ## Skill map
 
 ### Authoring skills (write plugins)
+- **[se2-dev-plugin-guide](../se2-dev-plugin-guide/SKILL.md)** — Developer guide around the code: the template, where to learn the game, local testing with Pulsar, how players' PCs differ, the hub manifest XML, submitting to PluginHub-SE2, working with coding agents.
 - **[se2-dev-plugin](../se2-dev-plugin/SKILL.md)** — Plugin development (Harmony patching, transpilers, preloader, publicizer). Search plugin source downloaded from PluginHub-SE2.
 
 ### Review skill
@@ -76,7 +77,8 @@ wants the Graphify graph, so the extra tooling never pollutes context during nor
 - **Writing or fixing a plugin?** → `se2-dev-plugin` + `se2-dev-game-code`, with `se2-dev-game-book` read first if installed.
 - **Reviewing a PluginHub-SE2 submission?** → `se2-dev-plugin-review` + `se2-dev-game-code`.
 - **Need to understand how the game does X?** → `se2-dev-game-book` first if installed, then `se2-dev-game-code` to confirm the specifics. Without the book, `se2-dev-game-code` alone.
-- **Registering a client-side mod to Pulsar?** → `se2-dev-plugin`, following its `Guide.md`.
+- **Starting, testing or publishing a plugin, or a developer's process question?** → `se2-dev-plugin-guide`.
+- **Registering a client-side mod to Pulsar?** → `se2-dev-plugin-guide`, following its `Submitting.md`.
 
 Most non-trivial tasks pair the **authoring** skill with a **reference** skill: write with one,
 look up the game's internals with the other.
