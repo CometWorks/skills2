@@ -18,17 +18,13 @@ uv run list_plugins.py --search "tool"
 
 ### Step 2: Download Plugin Source
 
-**IMPORTANT**: You must use the EXACT plugin name as shown in the list output.
+Use the plugin name, `RepoId` or `Id` as shown in the list output. Matching is case-insensitive;
+a partial term works when it matches exactly one plugin, otherwise the script lists the candidates.
 
 ```bash
-# ✅ CORRECT - exact name with proper capitalization and spacing
-uv run download_plugin_source.py "Paint Replacer"
-uv run download_plugin_source.py "Plugin Name"
-
-# ❌ WRONG - these will fail
-uv run download_plugin_source.py "paint replacer"  # wrong case
-uv run download_plugin_source.py "Paint-Replacer"  # wrong format
-uv run download_plugin_source.py "PaintReplacer"   # wrong spacing
+uv run download_plugin_source.py "No Forced Camera Zoom"               # FriendlyName
+uv run download_plugin_source.py WesternSpace/SE2-NoForcedCameraZoom   # RepoId
+uv run download_plugin_source.py SE2-NoForcedCameraZoom                # repo name
 ```
 
 **Tip**: Copy-paste the name directly from `list_plugins.py` output to avoid typos.
@@ -52,14 +48,14 @@ with XML files in it.
 You can find the right plugins to look into by searching in the XML files in the
 `PluginHub-SE2/Plugins` folder.
 They have `FriendlyName` and `Description` which should be enough to identify what they are about in most cases.
-The `DotNetCompat` plugin is special (internal plugin), only use it if you want good examples for preloader patches.
+The hidden `linux-compat` plugin (`CometWorks/linux-compat2`) is special (internal plugin), only use it if you want good examples for preloader patches.
 
 Each XML file corresponds to a plugin registered on the PluginHub-SE2. The `<RepoId>` (or if it is not present
 then the `Id`) field will tell you the GitHub repository ID of the plugin. 
 
 ## Plugin Storage
 
-Plugin sources are downloaded to `Data/Sources/<PluginName>/` by default.
+Plugin sources are downloaded to `Data/Sources/<RepoName>/` by default.
 `Data/` is a junction (Windows) or symlink (Linux) created by the
 preparation script that points at the per-user data folder
 (`%USERPROFILE%\.se2-dev\plugin\` on Windows, `~/.se2-dev/plugin/` on
@@ -73,8 +69,8 @@ You can override the sources directory by:
 The `download_plugin_source.py` script handles this automatically.
 
 Preparation requires `git` on `PATH`, so plugins are `git clone`d at the
-commit recorded in the PluginHub XML and can be updated in place later with
-`git pull`. Both the listed and downloaded commit hashes are recorded in
+commit recorded in the PluginHub XML; re-running `download_plugin_source.py`
+re-clones a plugin when that commit changes. Both the listed and downloaded commit hashes are recorded in
 `Data\plugins.json` for later comparison.
 
 ## Examples of Finding Plugins
@@ -82,31 +78,36 @@ commit recorded in the PluginHub XML and can be updated in place later with
 ### Example 1: Find Camera-Related Plugins
 ```bash
 $ uv run list_plugins.py --search "camera"
-Found 116 plugins (2 matching search 'camera')
+Found 1 plugins (0 available locally)
 
-[REMOTE] Camera Panning
-  ID: avaness/CameraPanning
-  Author: avaness
+[REMOTE] No Forced Camera Zoom
+  ID: DA18B71F-9B46-42E9-BDCD-841CCC571E2A
+  RepoId: WesternSpace/SE2-NoForcedCameraZoom
+  Author: WesternSpace
+  Commit (registered): 508fa9bbd782
 
-[REMOTE] Free Camera
-  ID: carlosmaid/FreeCameraPlus
-  Author: carlosmaid
-
-# Download exact name
-$ uv run download_plugin_source.py "Camera Panning"
+$ uv run download_plugin_source.py "No Forced Camera Zoom"
 ```
 
-### Example 2: Find All Tool-Related Plugins
+### Example 2: Several Matches
 ```bash
-$ uv run list_plugins.py --search "tool"
-Found 116 plugins (3 matching search 'tool')
+$ uv run list_plugins.py --search "hdr"
+Found 2 plugins (0 available locally)
 
-[REMOTE] Plugin Name
-  ID: author-github-username/PluginName
-  Author: Author
+[REMOTE] HDR Render 2
+  ID: 109CBF17-F8C8-49C6-AC39-8EA58910A631
+  RepoId: lolifamily/HdrRender2
+  Author: lolifamily
+  Commit (registered): 293e268e4d93
 
-# Download the one you want (use EXACT name)
-$ uv run download_plugin_source.py "Plugin Name"
+[REMOTE] Tonemapping + HDR
+  ID: F03809A6-80F0-472C-B8FA-5A40FE3AB9DC
+  RepoId: matelemons/SE2_HDR
+  Author: Matelemons
+  Commit (registered): 735c7772e385
+
+# "hdr" alone matches both, so name the one you want
+$ uv run download_plugin_source.py "HDR Render 2"
 ```
 
 ## Re-indexing

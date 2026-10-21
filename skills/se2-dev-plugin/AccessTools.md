@@ -25,7 +25,7 @@ var method = AccessTools.Method(typeof(SomeClass), "MethodName", new[] { typeof(
 var method = AccessTools.Method(typeof(SomeClass), "GenericMethod", null, new[] { typeof(MyType) });
 
 // Shorthand: "Namespace.Class:Method" syntax
-var method = AccessTools.Method("Sandbox.Game.MyClass:MyMethod");
+var method = AccessTools.Method("Keen.Game2.SomeNamespace.MyClass:MyMethod");
 ```
 
 ### Finding Fields and Properties
@@ -56,7 +56,7 @@ var cctor = AccessTools.Constructor(typeof(SomeClass), null, searchForStatic: tr
 
 ```csharp
 // Find a type by full name
-var type = AccessTools.TypeByName("Sandbox.Game.SomeNamespace.SomeClass");
+var type = AccessTools.TypeByName("Keen.Game2.SomeNamespace.SomeClass");
 
 // Find a nested/inner type
 var innerType = AccessTools.Inner(typeof(OuterClass), "InnerClassName");
@@ -125,8 +125,9 @@ static class MyPatch
 For static fields:
 
 ```csharp
-static readonly ref int StaticCounter =
-    ref AccessTools.StaticFieldRefAccess<int>(typeof(MyClass), "s_counter");
+// A static field cannot hold a ref, so take the ref where it is used
+ref int counter = ref AccessTools.StaticFieldRefAccess<int>(typeof(MyClass), "s_counter");
+counter++;
 ```
 
 ## Declared vs. Regular Methods

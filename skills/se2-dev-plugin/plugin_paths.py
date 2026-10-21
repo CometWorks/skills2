@@ -107,7 +107,7 @@ def resolve_all_plugin_sources_dirs() -> list:
     """
     Return all directories that may contain plugin sources.
 
-    Currently this is just the configured/temp sources directory; kept as a
+    Currently this is just the configured sources directory; kept as a
     list to keep call sites stable in case additional fallback locations
     are reintroduced later.
     """

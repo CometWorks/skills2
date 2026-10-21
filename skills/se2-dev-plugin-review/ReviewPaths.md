@@ -21,7 +21,9 @@ The performed-checks summary must state the repository path count and confirm ev
 
 Require `source.audit_scope == direct_commit_diff`. Only on this script-selected path, start from generated `source.diff`, exactly:
 
-`git diff <old_source_sha>..<new_source_sha>`
+`git diff --binary --find-renames <old_source_sha>..<new_source_sha>`
+
+Its changed paths and their status are in `changed-files.txt` (`git diff --name-status --find-renames`).
 
 1. Use the programmatic diff artifact, enumerate changed paths, and read the complete diff line by line. Do not substitute GitHub's displayed patch, a latest-commit diff, or a default-branch comparison.
 2. Read unchanged context only to understand changed behavior, callers, data origins/sinks, API contracts, and lifecycle effects.

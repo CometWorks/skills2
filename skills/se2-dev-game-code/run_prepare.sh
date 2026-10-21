@@ -15,7 +15,7 @@ if [ -f "Prepare.DONE" ]; then
     exit 0
 fi
 
-echo "Starting preparation... This may take 5-15 minutes."
+echo "Starting preparation... This may take 10-20 minutes."
 echo "---"
 
 case "$(uname -s 2>/dev/null || echo unknown)" in

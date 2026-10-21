@@ -121,7 +121,7 @@ All Python scripts in this skill must be run via `uv run`:
 
 ```bash
 uv run search_game_code.py class declaration CubeGridComponent
-uv run index_code.py
+uv run index_code.py Data/Decompiled Data/CodeIndex
 ```
 
 This ensures the correct Python virtual environment is used.

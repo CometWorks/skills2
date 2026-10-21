@@ -34,6 +34,7 @@ REM 4. Set up Python venv
 if exist .venv goto skip_venv
 echo Setting up Python .venv (uv sync)
 uv sync
+if %ERRORLEVEL% NEQ 0 goto failed
 :skip_venv
 
 REM 5. Download busybox if missing
@@ -66,8 +67,7 @@ if %ERRORLEVEL% NEQ 0 (
 :skip_data_junction
 
 REM 7. Pre-create the Sources subfolder where per-plugin git clones will live.
-REM    Each plugin is cloned as Data\Sources\<PluginName>\... so it can be
-REM    pulled later to fetch upstream updates.
+REM    Each plugin is cloned as Data\Sources\<RepoName>\ at its registered commit.
 if not exist Data\Sources (
     echo Creating Sources folder
     mkdir Data\Sources

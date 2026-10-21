@@ -565,6 +565,12 @@ def prepare(pr_url: str, output_arg: Path | None) -> int:
                 f"{review['manifest_path']}: {review['review_type']} {target} {old_sha}..{new_sha}"
             )
         return 0
-    except (KeyError, OSError, ReviewError, subprocess.SubprocessError) as error:
+    except (
+        KeyError,
+        OSError,
+        ValueError,
+        ReviewError,
+        subprocess.SubprocessError,
+    ) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1

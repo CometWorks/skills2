@@ -39,7 +39,7 @@ Check these patterns **in order** - first match wins:
 
 The host system must have the following on `PATH`:
 
-- **Python** 3.13 or newer
+- **Python** 3.13 or newer (on Linux optional: `uv` provides it)
 - **git** command line client (used to version each decompiled game build)
 - **dotnet** SDK (for installing `ilspycmd`)
 
@@ -76,7 +76,7 @@ Treat `Data/Decompiled`, `Data/Content` and `Data/CodeIndex` the same way on eve
 
 ## Local Versioning of Decompiled Sources
 
-The `Data` folder is a local Git repository. Every successful preparation creates a commit of the decompiled C# sources **and the copied content files** whose message is the game's version label. Only the indexable text content is copied (definitions, translations, blueprints, shaders), never the binary assets, so definition changes stay reviewable and diffable across game versions.
+The `Data` folder is a local Git repository. Every successful preparation creates a commit of the decompiled C# sources **and the copied content files** whose message is the game's version label. Only the indexable text content is copied (definitions, translations, configuration), never the binary assets, so definition changes stay reviewable and diffable across game versions.
 
 This means:
 
@@ -172,13 +172,14 @@ main types.
 For building your own utility scripts to work with the indexes and decompiled code:
 
 - **[ScriptingGuide.md](ScriptingGuide.md)** - How to write Python scripts, use BusyBox, handle Windows paths
+- **[UtilityScripts.md](UtilityScripts.md)** - Catalog of the scripts in this skill
 
 ## Game Content Data
 
 The textual part of the game's `Content` is copied into the `Data/Content` folder for free text search:
 - Language translations, including the string IDs
 - Block and other entity definitions
-- Default blueprints and scenarios
+- System configuration and AI behavior data (`System/*.json`)
 - See [ContentTypes.md](ContentTypes.md) for the full list of content types
 - See [ContentSelection.md](ContentSelection.md) for which files are copied and which are
   left behind — only text is copied, so models, textures, audio and video are **not** in
@@ -195,7 +196,7 @@ have a single row with an empty `usage` column.
 
 ## General Rules
 
-- In the `Data/Decompiled` folder search only inside the C# source files (*.cs) in general. If you work on transpiler or preloader patches, then also search in the IL code (*.il) files.
+- In the `Data/Decompiled` folder search only inside the C# source files (*.cs) in general. If you work on transpiler or preloader patches, then also search in the IL code (*.il) files; they exist only if IL output was enabled before preparation (uncomment the `--ilcode` line in `decompile_dll.sh`).
 - In the `Data/Content` folder search the files appropriate for the task. See [ContentTypes.md](ContentTypes.md) for the list of types and [ContentSelection.md](ContentSelection.md) for what is not there at all.
 - Do not search for decompiled game code outside the `Data/Decompiled` folder. The decompiled game source tree must be there if the preparation succeeded.
 - Do not search for game content data outside the `Data/Content` folder. The copied game content must be there if the preparation succeeded.

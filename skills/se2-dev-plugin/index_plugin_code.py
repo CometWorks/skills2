@@ -1098,11 +1098,17 @@ def find_local_plugins(plugin_sources_dir: Path) -> List[Dict]:
                             tree = ET.parse(xml_file)
                             root = tree.getroot()
                             id_elem = root.find("Id")
+                            repo_elem = root.find("RepoId")
                             name_elem = root.find("FriendlyName")
-                            if id_elem is not None and id_elem.text:
-                                repo_name = id_elem.text.split("/")[-1]
+                            id_text = (id_elem.text or "").strip() if id_elem is not None else ""
+                            # SE2 entries keep owner/repo in <RepoId>; <Id> may be a GUID
+                            repo_id = (repo_elem.text or "").strip() if repo_elem is not None else ""
+                            repo_id = repo_id or id_text
+                            if repo_id:
+                                repo_name = repo_id.split("/")[-1]
                                 if repo_name == item.name:
-                                    plugin_info["id"] = id_elem.text
+                                    plugin_info["id"] = id_text or repo_id
+                                    plugin_info["repo_id"] = repo_id
                                     if name_elem is not None and name_elem.text:
                                         plugin_info["name"] = name_elem.text
                                     break
@@ -1125,11 +1131,15 @@ def get_available_plugins() -> List[Dict]:
         try:
             tree = ET.parse(xml_file)
             root = tree.getroot()
-            plugin_info = {"id": "", "name": "", "description": ""}
+            plugin_info = {"id": "", "repo_id": "", "name": "", "description": ""}
 
             id_elem = root.find("Id")
             if id_elem is not None and id_elem.text:
                 plugin_info["id"] = id_elem.text.strip()
+
+            repo_elem = root.find("RepoId")
+            if repo_elem is not None and repo_elem.text:
+                plugin_info["repo_id"] = repo_elem.text.strip()
 
             name_elem = root.find("FriendlyName")
             if name_elem is not None and name_elem.text:
