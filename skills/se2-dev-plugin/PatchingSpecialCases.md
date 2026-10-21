@@ -265,11 +265,13 @@ static class LowPriorityPatch
 
 Priority values (higher = runs first):
 - `Priority.First` = 800
-- `Priority.VeryHigh` = 600
-- `Priority.High` = 500
+- `Priority.VeryHigh` = 700
+- `Priority.High` = 600
+- `Priority.HigherThanNormal` = 500
 - `Priority.Normal` = 400 (default)
-- `Priority.Low` = 300
-- `Priority.VeryLow` = 200
+- `Priority.LowerThanNormal` = 300
+- `Priority.Low` = 200
+- `Priority.VeryLow` = 100
 - `Priority.Last` = 0
 
 For fine control:

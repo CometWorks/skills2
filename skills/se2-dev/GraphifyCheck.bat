@@ -45,5 +45,13 @@ if not exist "%OUT%\.graphify_analysis.json" (
     exit /b 3
 )
 
+REM A truncated/empty graph.json means the build died mid-write.
+for %%F in ("%OUT%\graph.json") do if %%~zF LSS 1024 (
+    echo INCOMPLETE: %OUT%\graph.json is truncated; the build was interrupted.
+    echo Clean and rebuild by re-running prepare:
+    echo   rmdir /S /Q "%OUT%"
+    exit /b 3
+)
+
 echo OK: graph.json and clustering data present at %OUT%
 exit /b 0

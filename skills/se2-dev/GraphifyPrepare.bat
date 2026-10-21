@@ -22,7 +22,9 @@ REM single-core Python fallback (~10-30 min for game code). We default the Graph
 REM tool to Python 3.12 with the leiden extra. When the fast backend is available the
 REM graph is built automatically; otherwise it stays optional and only builds on
 REM opt-in (SE2_DEV_GRAPHIFY=1). SE2_DEV_GRAPHIFY=0 disables it entirely.
+REM SE2_DEV_GRAPHIFY_PYTHON pins a different interpreter, as on Linux.
 set "GRAPHIFY_PY_VER=3.12"
+if defined SE2_DEV_GRAPHIFY_PYTHON set "GRAPHIFY_PY_VER=%SE2_DEV_GRAPHIFY_PYTHON%"
 
 REM The decompiled game-code graph.json is well over Graphify's default 512 MB load
 REM cap, which would abort every build and update. Raise it, but let an explicitly
@@ -109,8 +111,7 @@ if %ERRORLEVEL% EQU 3 (
 )
 
 echo Graphify: updating %GRAPHIFY_LABEL% graph of %GRAPHIFY_ABS_ROOT% at %GRAPHIFY_OUT%
-REM --out is passed only when it differs from the root, so the default
-REM invocation stays identical to what the other skills have always run.
+REM --out is passed only when it differs from the root.
 if /I "%GRAPHIFY_ABS_OUT_DIR%"=="%GRAPHIFY_ABS_ROOT%" (
     graphify "%GRAPHIFY_ABS_ROOT%" --update %GRAPHIFY_EXCLUDES%
 ) else (
@@ -187,7 +188,7 @@ echo Graphify builds a navigable map beside the regular search indexes. >CON
 echo Fast clustering needs the native Rust Leiden backend ^(graspologic on Python %GRAPHIFY_PY_VER%^). >CON
 echo Install options: >CON
 echo   uv tool install --python %GRAPHIFY_PY_VER% "graphifyy[leiden]"   ^(recommended: fast backend^) >CON
-echo   pipx install "graphifyy[leiden]" >CON
+echo   pipx install --python python%GRAPHIFY_PY_VER% "graphifyy[leiden]" >CON
 echo   pip install "graphifyy[leiden]" >CON
 echo Then wire it into your AI platform: >CON
 echo   graphify install --platform [AI PLATFORM] >CON
@@ -201,12 +202,20 @@ if /I not "%GRAPHIFY_INSTALL%"=="y" if /I not "%GRAPHIFY_INSTALL%"=="yes" (
 where uv >NUL 2>NUL
 if %ERRORLEVEL% EQU 0 (
     uv tool install --python %GRAPHIFY_PY_VER% --force "graphifyy[leiden]"
+    if !ERRORLEVEL! NEQ 0 (
+        echo WARNING: installing graphifyy[leiden] on Python %GRAPHIFY_PY_VER% failed; retrying without the fast backend.
+        uv tool install --force graphifyy
+    )
     goto after_package_install
 )
 
 where pipx >NUL 2>NUL
 if %ERRORLEVEL% EQU 0 (
-    pipx install "graphifyy[leiden]"
+    pipx install --python python%GRAPHIFY_PY_VER% "graphifyy[leiden]"
+    if !ERRORLEVEL! NEQ 0 (
+        echo WARNING: pipx install of graphifyy[leiden] failed; retrying without the fast backend.
+        pipx install graphifyy
+    )
     goto after_package_install
 )
 
@@ -221,7 +230,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 if defined SE2_DEV_GRAPHIFY_PLATFORM (
     graphify install --platform "%SE2_DEV_GRAPHIFY_PLATFORM%"
-    if %ERRORLEVEL% NEQ 0 echo WARNING: graphify platform install failed for "%SE2_DEV_GRAPHIFY_PLATFORM%".
+    if !ERRORLEVEL! NEQ 0 echo WARNING: graphify platform install failed for "%SE2_DEV_GRAPHIFY_PLATFORM%".
     exit /b 0
 )
 
@@ -229,7 +238,7 @@ set "GRAPHIFY_PLATFORM="
 set /P "GRAPHIFY_PLATFORM=Enter Graphify AI platform for graphify install --platform, or press Enter to skip: " <CON >CON
 if not "%GRAPHIFY_PLATFORM%"=="" (
     graphify install --platform "%GRAPHIFY_PLATFORM%"
-    if %ERRORLEVEL% NEQ 0 echo WARNING: graphify platform install failed for "%GRAPHIFY_PLATFORM%".
+    if !ERRORLEVEL! NEQ 0 echo WARNING: graphify platform install failed for "%GRAPHIFY_PLATFORM%".
 ) else (
     echo Graphify package installed. To wire it into your AI platform later, run:
     echo   graphify install --platform [AI PLATFORM]

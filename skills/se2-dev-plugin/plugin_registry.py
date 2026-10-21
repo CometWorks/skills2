@@ -23,7 +23,6 @@ inspect by hand and diff in version control if users commit it.
 
 import datetime
 import json
-from pathlib import Path
 from typing import List, Optional
 
 from plugin_paths import ensure_base_dir, resolve_registry_path

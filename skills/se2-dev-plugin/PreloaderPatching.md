@@ -8,9 +8,8 @@ replace entire interfaces, classes or structs.
 Preloader patches process IL code in the `Mono.Cecil` format, therefore they are different from
 transpiler patches. The same code cannot be used for both.
 
-Preloader initialization, copy into the plugin's project folder, then customize: `Examples/Client/Preloader.cs`
+Preloader initialization: `ClientPlugin/Preloader.cs` in the client plugin template, disabled by an `#if` until you need it.
 
-Example preloader patch: `Examples/Client/DecodePixelDataPrepatch.cs`
+Example preloader patch skeleton: `Examples/Client/ExamplePrepatch.cs`
 
-Currently, preloader patching is available only on the game client (Pulsar feature) and not available
-on the server side (DS, Torch).
+Preloader patching is a Pulsar feature, available only on the game client.

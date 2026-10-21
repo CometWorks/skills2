@@ -290,9 +290,8 @@ se2_dev_graphify_run_build() {
     local status
     status="$(se2_dev_graphify_status "$root" "$outdir")"
 
-    # Extra flags for the graphify invocation. --out is passed only when it differs
-    # from the root, so the default invocation stays byte-identical to what the
-    # other skills have always run.
+    # Extra flags for the graphify invocation: the shared excludes, plus --out only
+    # when it differs from the root.
     #
     # The expansion is guarded rather than plain: callers source this under
     # `set -u`, and bash before 4.4 (RHEL/CentOS 7 ship 4.2) treats an empty
@@ -350,8 +349,7 @@ se2_dev_graphify_prepare() {
     fi
 
     # Sources unchanged and the existing graph is usable: there is nothing to do.
-    # Checked before provisioning so an up-to-date graph costs neither a tool
-    # install nor the disk pre-check scan of the whole corpus.
+    # Checked before provisioning so an up-to-date graph costs no tool install.
     if [ "$source_state" = "unchanged" ] && [ "$(se2_dev_graphify_status "$root" "$outdir")" = "ok" ]; then
         log "Graphify: $label graph is up to date (sources unchanged); skipping"
         return 0

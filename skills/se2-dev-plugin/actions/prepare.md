@@ -74,7 +74,7 @@ The preparation script:
   `Data/` junction (Windows) or symlink (Linux), so all downloaded data
   persists across re-installs and `Clean.bat`/`clean.sh` runs
 - Pre-creates the `Data/Sources/` folder where each plugin will later be
-  cloned into its own `Data/Sources/<PluginName>/` subdirectory
+  cloned into its own `Data/Sources/<RepoName>/` subdirectory
 - On Windows, downloads and installs required tools (`busybox.exe`)
 - `git clone`s the PluginHub-SE2 registry into `Data/PluginHub-SE2`
   (refreshed with `git fetch` / `git reset` on subsequent runs, so a
@@ -84,6 +84,7 @@ The preparation script:
 
 Individual plugin sources are downloaded on demand by
 `download_plugin_source.py`, which `git clone`s each plugin from GitHub into
-`Data/Sources/<PluginName>/` (or the override set via
-`SE_PLUGIN_DOWNLOAD_FOLDER` / `plugin_download_folder:`). Re-running it pulls
-upstream updates in place.
+`Data/Sources/<RepoName>/` (or the override set via
+`SE_PLUGIN_DOWNLOAD_FOLDER` / `plugin_download_folder:`), at the commit
+registered in PluginHub-SE2. Re-running it re-clones a plugin whose local copy
+is not at that commit.

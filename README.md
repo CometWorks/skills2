@@ -47,7 +47,9 @@ If you want to prepare them ahead of time, run the preparation script in their r
 
 **Note:** Preparing the `se2-dev-game-code` skill may take 10–20 minutes, as it fully decompiles the game and builds
 code indexes to allow for rapid code search later. The fully prepared repository takes about **1 GB** of disk space
-due to the decompiled source code, the code index and the copied game contents.
+due to the decompiled source code, the code index and the copied game contents. The Graphify graph, built
+automatically when its fast backend is available, adds about **1.5 GB** more
+(see [Disk space](skills/se2-dev/GraphifyPrepare.md#disk-space)).
 
 ## Skills
 

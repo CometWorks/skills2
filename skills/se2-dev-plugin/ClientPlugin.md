@@ -19,8 +19,8 @@ Build configuration (`Directory.Build.props` in the repository root):
 
 Example patches:
 - `Examples/Client/ExamplePrefixPostfixPatch.cs` Prefix and Postfix patches
-- `Examples/Client/ExampleTranspilerPatch.cs` Transpiler patch
-- `Examples/Client/ExamplePrepatch.cs` Preloader (pre-JIT) patch, disabled by an `#if` in the template
+- `Examples/Client/ExampleTranspilerPatch.cs` Transpiler patch, disabled by an `#if` in the template
+- `Examples/Client/ExamplePrepatch.cs` Preloader (pre-JIT) patch skeleton, disabled by an `#if` in the template
 
 Folder structure of a client-only plugin:
 - `.run`: JetBrains Rider run configurations (for convenience)

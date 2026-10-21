@@ -15,15 +15,12 @@ Examples:
 """
 
 import argparse
-import os
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from plugin_paths import resolve_all_plugin_sources_dirs, resolve_pluginhub_dir
 from plugin_registry import load_registry
-
-SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def parse_plugin_xml(xml_file: Path) -> dict:
@@ -95,13 +92,6 @@ def parse_plugin_xml(xml_file: Path) -> dict:
     except Exception as e:
         print(f"Error parsing {xml_file}: {e}", file=sys.stderr)
         return None
-
-
-def get_local_plugin_id(plugin_dir: Path) -> str:
-    """Get plugin ID from a local plugin source directory."""
-    # The directory name is typically the repo name (e.g., "SomePluginName")
-    # We need to match it with the PluginHub-SE2 ID format (e.g., "author-github-username/SomePluginName" or a GUID)
-    return plugin_dir.name
 
 
 def load_all_plugins() -> list:

@@ -104,7 +104,7 @@ default and every build and update on it would otherwise abort. See
 | `se2-dev-game-code` | decompiled game code (`Data/Decompiled`) | `Data` (`SE2_DEV_GAME_CODE_GRAPH_OUT`) | `SE2_DEV_GAME_CODE_GRAPH_ROOT` |
 
 `se2-dev-game-code` keeps the graph out of the graphed tree because `Data/Decompiled`
-is a Git repository holding only decompiled C#; a ~1.8 GB graph inside it would be
+is a Git repository holding only decompiled C#; a graph of over 1.5 GB inside it would be
 swept into every version commit.
 
 Use the override variables when the subskill should graph a specific active project
@@ -179,8 +179,6 @@ call ..\se2-dev\GraphifyCheck.bat Data
 The argument is the directory that *contains* `graphify-out/`. For `se2-dev-game-code`
 that is `Data` (it graphs `Data/Decompiled` but stores the graph beside it);
 `se2-dev-plugin` keeps the graph inside the graphed tree, so pass `Data/Sources`.
-
-Pass `Data/Sources` instead when checking the `se2-dev-plugin` graph.
 
 Exit codes: `0` ok, `2` missing (never built), `3` incomplete (must be rebuilt). If it
 reports `incomplete` or `missing` and you want the graph, delete `graphify-out/` and re-run

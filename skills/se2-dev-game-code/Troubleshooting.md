@@ -84,13 +84,13 @@ uv run search_game_code.py struct usage "Vector3D" -n Keen.Game2.Simulation.Worl
 Use offset to view results in batches:
 
 ```bash
-# First 100
+# First 10
 uv run search_game_code.py class usage CubeGridComponent --limit 10 --offset 0
 
-# Next 100
+# Next 10
 uv run search_game_code.py class usage CubeGridComponent --limit 10 --offset 10
 
-# Third 100
+# Third 10
 uv run search_game_code.py class usage CubeGridComponent --limit 10 --offset 20
 ```
 
@@ -110,8 +110,8 @@ rm -rf Data/CodeIndex/
 ```
 
 Preparation also detects game updates automatically: if the binaries' version
-differs from `Data/game_version.txt`, the `Decompiled/`, `Content/` and
-`CodeIndex/` folders are wiped and rebuilt. Earlier decompiled versions remain
+differs from `Data/game_version.txt`, the `Decompiled/`, `Content/`,
+`CodeIndex/` and `graphify-out/` folders and `game_files.json` are wiped and rebuilt. Earlier decompiled versions remain
 available in the local Git history under `Data/.git/`.
 
 ### Checking Index Status

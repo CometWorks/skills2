@@ -35,8 +35,8 @@ The test suite exercises all game code search capabilities:
 
 | Category | Tests |
 |----------|-------|
-| Class declaration | Entity, GameApp |
-| Class usage | Entity, GameApp |
+| Class declaration | Entity, CubeGridComponent |
+| Class usage | Entity, CubeGridComponent |
 | Struct declaration | Vector3D, ColorHSV |
 | Struct usage | Vector3D, ColorHSV |
 | Method declaration | Init, Update |
@@ -56,11 +56,11 @@ The test suite exercises all game code search capabilities:
 | Count mode | counting results instead of listing |
 | Regex patterns | ^Grid, Position$, ^Vector[23]D$ |
 | Multiple patterns | AND logic with multiple terms |
-| Hierarchy - class parent | Entity |
+| Hierarchy - class parent | Entity, CubeGridComponent |
 | Hierarchy - class children | Entity |
 | Hierarchy - interface parent | IEntityContainer |
 | Hierarchy - interface children | IEntityContainer |
-| Hierarchy - class implements | Entity |
+| Hierarchy - class implements | CubeGridComponent |
 | Hierarchy - interface implementors | IEntityContainer |
 | Member usage vs enclosing method | Update, Dispose, Entity |
 | Non-matching examples | Verify empty results don't crash |
@@ -103,7 +103,7 @@ If tests fail:
 4. **Python environment issues** - Try `uv sync` to reinstall dependencies
 
 As a last resort, you can force repeating the whole preparation process by running the clean then prepare scripts: `./clean.sh` then `./prepare.sh` (Linux), or `.\Clean.bat` then `.\Prepare.bat` (Windows).
-Notify the user if you do this, because the preparation may take 5-15 minutes to complete depending on the hardware.
+Notify the user if you do this, because the preparation may take 10-20 minutes to complete depending on the hardware.
 
 ## Optional: Game File Integrity Check
 
@@ -127,7 +127,7 @@ preparation. See [GameFileHashes.md](../GameFileHashes.md).
 
 ## Optional: Graphify Graph Test
 
-If the optional Graphify graph was built (see [Graphify Graph](../SKILL.md) and
+If the optional Graphify graph was built (see [Graphify Graph](../SKILL.md#graphify-graph-optional) and
 [GraphifyPrepare.md](../../se2-dev/GraphifyPrepare.md)), verify it separately with the graph query
 smoke test — analogous to the code-search test but exercising the Graphify graph:
 
