@@ -53,6 +53,7 @@ due to the decompiled source code, the code index and the copied game contents.
 
 * [se2-dev](skills/se2-dev/SKILL.md) – **Start here.** Overview of the SE2 development ecosystem, routes to the skill your task needs, and holds the Graphify tooling shared by the other skills
 * [se2-dev-plugin](skills/se2-dev-plugin/SKILL.md) – Plugin development
+* [se2-dev-plugin-guide](skills/se2-dev-plugin-guide/SKILL.md) – Developer guide: template, local testing, manifest XML, hub submission, coding agents
 * [se2-dev-plugin-review](skills/se2-dev-plugin-review/SKILL.md) – Security and quality review of PluginHub-SE2 PRs
 * [se2-dev-game-code](skills/se2-dev-game-code/SKILL.md) – Searchable decompiled C# game code
 
