@@ -625,7 +625,9 @@ class FileProcessor:
            in no `*_declarations.csv` at all and is invisible downstream.
         2. Correct spans. An ERROR node hands its own extent to whatever
            declaration tree-sitter recovered inside it, so a 40-line nested
-           struct was recorded as spanning its 720-line parent.
+           struct was recorded as spanning its 720-line parent. It can also
+           end a declaration early: a 885-line class was recorded as ending
+           with its first nested class, 767 lines short.
         3. Re-attribute members. Every member lexically inside that inflated
            node was recorded against the wrong declaring type.
         """
@@ -656,8 +658,9 @@ class FileProcessor:
                 if match is None:
                     continue
                 seen.add((entry.declaring_type, entry.start_line))
-                if match["end_line"] < entry.end_line:
-                    entry.end_line = match["end_line"]
+                # The brace-matched span wins both ways: an ERROR node can also
+                # end a declaration early, cutting off most of its members.
+                entry.end_line = match["end_line"]
                 if not entry.namespace and match["namespace"]:
                     entry.namespace = match["namespace"]
 
