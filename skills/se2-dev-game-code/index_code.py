@@ -346,6 +346,9 @@ class FileProcessor:
         relative_path = str(file_path.relative_to(self.root_path))
 
         source_lines = source_code.split("\n")
+        # Namespaces this file imports, for telling apart same-named types
+        # declared in several namespaces (see _resolve_type_namespace).
+        self._file_usings = set(self._USING_RE.findall(source_code))
 
         context = {
             "namespace": "",
@@ -1132,6 +1135,11 @@ class FileProcessor:
                 return child
         return None
 
+    # `using X.Y;` and `global using X.Y;`, but not aliases, `using static` or
+    # using statements.
+    _USING_RE = re.compile(r"^\s*(?:global\s+)?using\s+([\w.]+)\s*;", re.MULTILINE)
+    _file_usings: Set[str] = set()
+
     def _resolve_type_namespace(self, type_name: str, current_namespace: str) -> str:
         """
         Attempt to resolve the namespace of a type.
@@ -1153,9 +1161,6 @@ class FileProcessor:
         if "." in base:
             return type_name
 
-        # Check if it's in the current namespace
-        full_name = f"{current_namespace}.{base}" if current_namespace else base
-
         # Try to match against known types in declared sets
         for declared in (
             self.declared_interfaces,
@@ -1165,12 +1170,24 @@ class FileProcessor:
             if base not in declared:
                 continue
             locations = declared[base]
-            for ns, _ in locations:
-                if ns == current_namespace:
-                    return full_name + args
-            if locations:
-                ns, _ = next(iter(locations))
+            if not locations:
+                continue
+            # Follow C# lookup: the current namespace, then the namespaces
+            # enclosing it, then the file's imports. Picking an arbitrary one
+            # from the set, as before, resolved `Page<T>` or `IChildEntity` to a
+            # different namespace on every run, and often to the wrong one.
+            namespaces = sorted({ns for ns, _ in locations})
+            enclosing = current_namespace
+            while enclosing:
+                if enclosing in namespaces:
+                    return f"{enclosing}.{base}" + args
+                enclosing = enclosing.rpartition(".")[0]
+            ns = next((n for n in namespaces if n in self._file_usings or not n), None)
+            if ns is not None:
                 return (f"{ns}.{base}" if ns else base) + args
+            # Declared only where this file cannot see it: the name means some
+            # other type, typically from the BCL (`Comparer<T>`).
+            return base + args
 
         # Not declared anywhere in the indexed tree: almost always a BCL or
         # third-party type. Report the bare name rather than inventing one.
@@ -2449,12 +2466,18 @@ class CSharpIndexer:
                 writer.writerow(entry.to_csv_row())
 
         # Write hierarchy CSV files
+        # Same-named types in different files must not keep the order the
+        # shuffled, unordered worker results arrived in, so the keys end with
+        # the location.
         def hier_sort_key_class(e):
             return (
                 e.child_namespace,
                 e.child_class,
                 e.parent_namespace,
                 e.parent_class,
+                e.file_path,
+                e.start_line,
+                e.end_line,
             )
 
         def hier_sort_key_interface(e):
@@ -2463,10 +2486,20 @@ class CSharpIndexer:
                 e.child_interface,
                 e.parent_namespace,
                 e.parent_interface,
+                e.file_path,
+                e.start_line,
+                e.end_line,
             )
 
         def impl_sort_key(e):
-            return (e.implementing_namespace, e.implementing_type, e.interfaces)
+            return (
+                e.implementing_namespace,
+                e.implementing_type,
+                e.interfaces,
+                e.file_path,
+                e.start_line,
+                e.end_line,
+            )
 
         # Class hierarchy
         sorted_class_hierarchy = sorted(
