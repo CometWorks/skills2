@@ -1,10 +1,9 @@
 """
 Git helpers for downloading / updating repositories.
 
-Used by download_pluginhub.py and download_plugin_source.py to prefer
-`git clone` (and later `git fetch`/`git checkout`) when `git` is available
-on PATH, so local copies can be updated incrementally. ZIP downloads are
-used only as a fallback when `git` is missing.
+Used by download_pluginhub.py (clone, then `git fetch`/`git checkout` to
+refresh the registry in place) and download_plugin_source.py (clone at the
+registered commit; it falls back to a ZIP download when `git` is missing).
 """
 
 import shutil

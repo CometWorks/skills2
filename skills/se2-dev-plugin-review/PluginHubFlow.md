@@ -18,7 +18,7 @@ Use `--output <directory>` only when the default `~/.se2-dev/reviews/StarCpt-Plu
 4. Checks the `xsi:type`: `GitHubPlugin`, or `ModPlugin` beneath `Plugins/Mods/` with a numeric Workshop `<Id>`. A `ModPlugin` gets `review_type: workshop_mod` with its `workshop_id`, `hidden` and `dependencies`, and no source checkout.
 5. Reads `<RepoId>` and authoritative old/new `<Commit>` pins and resolves them to full target-repository SHAs.
 6. Checks out the exact new source SHA.
-7. Selects the audit gate from the manifest change in the hub PR. A first registration or changed `<RepoId>` writes `source-tree.txt` for the complete tracked repository at `new_source_sha`; only a real `<Commit>` bump writes `source.diff` from the direct `old-source-SHA..new-source-SHA` comparison.
+7. Selects the audit gate from the manifest change in the hub PR. A first registration or changed `<RepoId>` writes `source-tree.txt` for the complete tracked repository at `new_source_sha`; only a real `<Commit>` bump writes `source.diff` and `changed-files.txt` from the direct `old-source-SHA..new-source-SHA` comparison.
 8. Records package, build, binary, native-file, submodule, and static MSBuild-reference inventory in `review.json`.
 9. Records `source.asset_checks`: for each manifest asset, whether its repository `Path` is a file, a folder, or missing at the pinned SHA, the file's actual SHA-256 against the declared `Sha256`, and every `Url` asset, which is not fetched.
 

@@ -343,7 +343,7 @@ class FileProcessor:
                 source_code = f.read()
 
         tree = self.parser.parse(bytes(source_code, "utf-8"))
-        relative_path = str(file_path.relative_to(self.root_path))
+        relative_path = file_path.relative_to(self.root_path).as_posix()
 
         source_lines = source_code.split("\n")
         # Namespaces this file imports, for telling apart same-named types

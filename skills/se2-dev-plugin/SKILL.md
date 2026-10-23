@@ -122,7 +122,7 @@ re-installs and `Clean.bat`/`clean.sh` runs.
   (refreshed in place by `download_pluginhub.py` / `git pull`)
 - `Data/Sources/` — pre-created by the preparation script; contains a per-plugin
   subfolder for every downloaded plugin
-- `Data/Sources/<PluginName>/` — git clone of the plugin's GitHub repository
+- `Data/Sources/<RepoName>/` — git clone of the plugin's GitHub repository
   (overridable via `SE_PLUGIN_DOWNLOAD_FOLDER` or `plugin_download_folder:` in
   `CLAUDE.md`/`AGENTS.md`)
 - `Data/CodeIndex/` — CSV indexes produced by
@@ -134,9 +134,9 @@ re-installs and `Clean.bat`/`clean.sh` runs.
   and the full PluginHub-SE2 catalog (`available_plugins`).
 
 `download_plugin_source.py` requires `git` on `PATH` and clones each plugin
-into its own `Data/Sources/<PluginName>/` directory. Re-running it does
-`git fetch` + `git checkout` so local copies can be updated incrementally with
-a `git pull`. The commit hashes above are recorded in `plugins.json`.
+into its own `Data/Sources/<RepoName>/` directory, checked out (detached) at the
+commit registered in PluginHub-SE2. Re-running it re-clones a plugin whose local
+copy is not at the registered commit. The commit hashes above are recorded in `plugins.json`.
 
 See [search action](./actions/search.md) for complete documentation.
 
@@ -161,6 +161,7 @@ Follow the detailed instructions in:
 - [prepare action](./actions/prepare.md) - One-time preparation
 - [bash action](./actions/bash.md) - Running UNIX shell commands via busybox
 - [search action](./actions/search.md) - Search plugin code for examples
+- [UtilityScripts.md](UtilityScripts.md) - Catalog of the scripts in this skill
 
 ## Remarks
 

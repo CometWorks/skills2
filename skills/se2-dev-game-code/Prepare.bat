@@ -40,6 +40,7 @@ REM 5. Set up Python venv
 if exist .venv goto skip_venv
 echo Setting up Python .venv (uv sync)
 uv sync
+if %ERRORLEVEL% NEQ 0 goto failed
 :skip_venv
 
 REM 6. Download busybox if missing

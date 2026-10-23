@@ -20,7 +20,7 @@ Linux):
 
 Run the preparation steps in `Prepare.md` if `Prepare.DONE` is missing. This requires:
 
-- Python 3.13+
+- Python 3.13+ (on Linux optional: `uv` provides it)
 - The command line `git` client on `PATH`
 - The .NET SDK (for `ilspycmd`)
 
@@ -29,12 +29,14 @@ Preparation will:
    (with an initial commit of `.gitignore`)
 2. Migrate an older `Data` layout if needed (see [SKILL.md](SKILL.md))
 3. Detect the current game version by inspecting the binaries
-4. Wipe `Decompiled/`, `Content/`, `CodeIndex/` and `graphify-out/` if the
+4. Wipe `Decompiled/`, `Content/`, `CodeIndex/`, `graphify-out/` and `game_files.json` if the
    version differs from the recorded one
 5. Decompile the game assemblies
 6. Copy the indexable game content into `Content/` (text only - see [ContentSelection.md](ContentSelection.md))
-7. Commit the decompiled sources and the content with the version label
-8. Build the code index
+7. Hash the original game files into `game_files.json` (see [GameFileHashes.md](GameFileHashes.md))
+8. Commit the decompiled sources and the content with the version label
+9. Build the code index and the content index
+10. Optionally build the Graphify graph
 
 ## Code Index
 
@@ -111,7 +113,7 @@ namespace,declaring_type,method_name,signature,file_path,start_line,end_line,des
 | `end_line` | Ending line of the signature (not the whole method body) |
 | `description` | XML doc comment before the method |
 
-The signature index includes all method types: abstract methods (no body), inline `=>` methods, and block `{...}` methods. Property getters/setters are NOT indexed as signatures; they appear in the field index.
+The signature index includes all method types: abstract methods (no body), inline `=>` methods, and block `{...}` methods. Property getters/setters are NOT indexed as signatures; they appear in `property_declarations.csv`.
 
 ### Indexer: index_code.py
 
@@ -139,7 +141,7 @@ uv run search_game_code.py [options] <category> <symbol_type> <patterns...>
 
 | Argument | Values | Description |
 |----------|--------|-------------|
-| `category` | `class`, `method`, `enum`, `struct`, `interface`, `field`, `property`, `event`, `constructor`, `namespace` | Symbol category to search |
+| `category` | `class`, `method`, `enum`, `enum_member`, `delegate`, `struct`, `interface`, `field`, `property`, `event`, `constructor`, `namespace` | Symbol category to search |
 | `symbol_type` | `declaration`, `usage`, `signature` (method only), `parent`, `children`, `implements`, `implementors` (hierarchy) | What to search for |
 | `patterns` | One or more patterns | Search expressions (see below) |
 
@@ -154,6 +156,7 @@ uv run search_game_code.py [options] <category> <symbol_type> <patterns...>
 | `-l N`, `--limit N` | Limit output to N results |
 | `-o N`, `--offset N` | Skip first N results (pagination) |
 | `-n NS`, `--namespace NS` | Filter to namespace and its sub-namespaces |
+| `-i`, `--case-insensitive` | Make pattern matching case-insensitive |
 
 #### Pattern Syntax
 
@@ -179,7 +182,7 @@ file_path:start-end|signature_text
 
 Example:
 ```
-Game2.Game\Game2\Game\MyClass.cs:100-102|[Attribute] public static void MyMethod(int param)
+Game2.Game/Keen/Game2/Game/MyClass.cs:100-102|[Attribute] public static void MyMethod(int param)
 ```
 
 The signature includes any attributes on preceding lines, normalized to a single line with whitespace collapsed. Doc comments are not included in the signature text.
@@ -242,7 +245,7 @@ busybox.exe grep ",GetPosition," Data/CodeIndex/method_usages.csv
 After finding a symbol location, read the source from `Data/Decompiled/`:
 
 ```
-# Search result: VRage.Core/VRage/Core/Vector3D.cs:13-245
+# Search result: VRage.Core/VRage/Core/Vector3D.cs:13-2293
 # Read: Data/Decompiled/VRage.Core/VRage/Core/Vector3D.cs
 ```
 

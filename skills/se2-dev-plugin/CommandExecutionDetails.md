@@ -16,7 +16,7 @@ This document provides comprehensive details about command execution for the se2
 ```bash
 # RECOMMENDED: Use workdir parameter to run commands in the skill folder
 bash -c "./Prepare.bat" (with workdir set to the skill folder)
-uv run search_game_code.py --help (with workdir set to the skill folder)
+uv run search_plugin_code.py class declaration Plugin (with workdir set to the skill folder)
 ```
 
 This is the most reliable approach because:
@@ -53,7 +53,7 @@ PowerShell is a native Windows shell that handles backslash paths correctly:
 # PowerShell examples
 cd C:\path\to\skill\folder
 .\Prepare.bat
-uv run search_game_code.py --help
+uv run search_plugin_code.py class declaration Plugin
 ```
 
 PowerShell uses `;` to chain commands, not `&&`:
@@ -120,8 +120,8 @@ if (Test-Path "Prepare.DONE") { "READY" } else { "NOT_READY" }
 All Python scripts in this skill must be run via `uv run`:
 
 ```bash
-uv run search_game_code.py --class-decl "CubeGridComponent"
-uv run index_game_code.py
+uv run search_plugin_code.py class declaration Plugin
+uv run index_plugin_code.py
 ```
 
 This ensures the correct Python virtual environment is used.
@@ -131,18 +131,18 @@ This ensures the correct Python virtual environment is used.
 ### ❌ Mistake 1: Using && in CMD
 
 ```cmd
-cd C:\skills\se2-dev-game-code && Prepare.bat
+cd C:\skills\se2-dev-plugin && Prepare.bat
 ```
 **Error:** `&&` is not recognized in CMD
 
 ✅ **Solution 1:** Use `&` instead:
 ```cmd
-cd C:\skills\se2-dev-game-code & Prepare.bat
+cd C:\skills\se2-dev-plugin & Prepare.bat
 ```
 
 ✅ **Solution 2:** Use separate commands:
 ```cmd
-cd C:\skills\se2-dev-game-code
+cd C:\skills\se2-dev-plugin
 Prepare.bat
 ```
 
@@ -163,25 +163,25 @@ busybox.exe grep "pattern" C:/Users/name/folder
 ### ❌ Mistake 3: Running Commands from Wrong Directory
 
 ```cmd
-C:\Users\name> uv run search_game_code.py --help
+C:\Users\name> uv run search_plugin_code.py class declaration Plugin
 ```
-**Error:** `search_game_code.py` not found, wrong CWD
+**Error:** `search_plugin_code.py` not found, wrong CWD
 
 ✅ **Solution 1:** Use workdir parameter:
 ```bash
-uv run search_game_code.py --help (with workdir=C:\path\to\skill\folder)
+uv run search_plugin_code.py class declaration Plugin (with workdir=C:\path\to\skill\folder)
 ```
 
 ✅ **Solution 2:** Change directory first:
 ```cmd
 cd C:\path\to\skill\folder
-uv run search_game_code.py --help
+uv run search_plugin_code.py class declaration Plugin
 ```
 
 ### ❌ Mistake 4: Forgetting to Prepare
 
 ```bash
-uv run search_game_code.py --class-decl "CubeGridComponent"
+uv run search_plugin_code.py class declaration Plugin
 ```
 **Error:** Index files missing, Python environment not set up
 
@@ -207,12 +207,12 @@ test -f "Prepare.DONE" && echo "READY" || echo "NOT_READY"
 
 **Step 4:** Once prepared, run commands using the workdir parameter:
 ```bash
-uv run search_game_code.py --help (with workdir set to skill folder)
+uv run search_plugin_code.py class declaration Plugin (with workdir set to skill folder)
 ```
 
 **Step 5:** For UNIX commands, use busybox with forward slashes:
 ```bash
-busybox.exe grep -r "CubeGridComponent" C:/path/to/Decompiled
+busybox.exe grep -r "Plugin" C:/path/to/Data/Sources
 ```
 
 ## Troubleshooting Checklist
@@ -250,12 +250,12 @@ busybox.exe grep -r "CubeGridComponent" C:/path/to/Decompiled
 # Command 1
 ./Prepare.bat (workdir: skill_folder)
 # Command 2
-uv run search_game_code.py --help (workdir: skill_folder)
+uv run search_plugin_code.py class declaration Plugin (workdir: skill_folder)
 ```
 
 **Option B:** Use PowerShell with semicolons:
 ```powershell
-cd C:\path\to\skill; .\Prepare.bat; uv run search_game_code.py --help
+cd C:\path\to\skill; .\Prepare.bat; uv run search_plugin_code.py class declaration Plugin
 ```
 
 **Option C:** Use a bash script wrapper (see `run_prepare.sh` if available)

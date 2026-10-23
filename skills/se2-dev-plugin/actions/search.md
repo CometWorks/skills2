@@ -13,9 +13,9 @@ uv run download_pluginhub.py
 ```
 
 This downloads (or updates) the PluginHub-SE2 registry into
-`Data\PluginHub-SE2` within the skill directory. When `git` is available on PATH
+`Data\PluginHub-SE2` within the skill directory. It needs `git` on PATH:
 the registry is cloned with `git clone` and refreshed with `git fetch`/`git reset`
-on subsequent runs; otherwise the script falls back to downloading a ZIP snapshot.
+on subsequent runs.
 Either way, the current commit hash is recorded in `plugins.json` (see below).
 
 ### 2. List Available Plugins
@@ -23,8 +23,10 @@ Either way, the current commit hash is recorded in `plugins.json` (see below).
 ```cmd
 uv run list_plugins.py                    # List all plugins
 uv run list_plugins.py --local            # List only locally available plugins
+uv run list_plugins.py --remote           # List only plugins not downloaded yet
 uv run list_plugins.py --search "camera"  # Search plugins by name/description
 uv run list_plugins.py -v                 # Verbose output with descriptions
+uv run list_plugins.py --json             # Machine-readable output
 ```
 
 ### 3. Download Plugin Source
@@ -35,7 +37,7 @@ uv run download_plugin_source.py author-github-username/PluginName
 uv run download_plugin_source.py PluginName
 ```
 
-Plugin sources are downloaded to `Data/Sources/<PluginName>` (where `Data/`
+Plugin sources are downloaded to `Data/Sources/<RepoName>` (where `Data/`
 is a junction (Windows) / symlink (Linux) to the per-user data folder —
 `%USERPROFILE%\.se2-dev\plugin\` on Windows, `~/.se2-dev/plugin/` on
 Linux — set up by the preparation script). The destination can be
@@ -44,8 +46,8 @@ overridden via the `SE_PLUGIN_DOWNLOAD_FOLDER` environment variable or a
 working directory.
 
 Preparation requires `git` on `PATH`, so each plugin is `git clone`d at the
-commit recorded in its PluginHub XML and can later be updated in place with
-`git pull` (or by re-running `download_plugin_source.py`). Both the commit
+commit recorded in its PluginHub XML (detached HEAD). Re-running
+`download_plugin_source.py` re-clones it when that commit changes. Both the commit
 registered in PluginHub and the commit actually checked out locally are
 recorded in `plugins.json`.
 
@@ -139,7 +141,7 @@ A single `Data\plugins.json` keeps track of plugins, with these top-level keys:
 - `downloaded_plugins.<repo>` — for each cloned plugin:
   - `registered_commit` — the commit the PluginHub XML currently points at.
   - `downloaded_commit` — the commit actually checked out in
-    `Sources/<PluginName>`. If the two differ, the local copy is out of date and
+    `Sources/<RepoName>`. If the two differ, the local copy is out of date and
     can be re-fetched with `download_plugin_source.py`.
   - `method` — `git` (clone) or `zip` (snapshot).
 - `indexed_plugins` — plugins whose sources were found and indexed by

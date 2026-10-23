@@ -80,7 +80,7 @@ namespace,declaring_type,method_name,signature,file_path,start_line,end_line,des
 
 **Includes:** Abstract methods, inline `=>` methods, and block `{...}` methods.
 
-**Excludes:** Property getters/setters (indexed in field declarations).
+**Excludes:** Property getters/setters (indexed in `property_declarations.csv`).
 
 ### Class Hierarchy CSV
 
@@ -156,7 +156,6 @@ System.Object
 │   ├── Keen.Game2.Simulation.WorldObjects.Characters.CharacterComponent
 │   └── Keen.VRage.Core.Game.Components.HierarchyComponent
 └── Keen.VRage.DCS.Components.Component
-    └── Keen.VRage.DCS.Samples.CubeGridComponent
 ```
 
 **Features:**

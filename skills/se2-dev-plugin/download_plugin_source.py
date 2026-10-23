@@ -12,10 +12,10 @@ The download folder is determined by (in priority order):
    script: %USERPROFILE%\.se2-dev\plugin\Sources\ on Windows,
    ~/.se2-dev/plugin/Sources/ on Linux)
 
-Each plugin is cloned into its own Data/Sources/<PluginName>/ subdirectory
-with `git clone` and checked out at the commit recorded in the PluginHub-SE2
-XML, so the local copy can later be updated in place with `git pull` (or by
-re-running this script). If `git` is not available on PATH the script falls
+Each plugin is cloned into its own Data/Sources/<RepoName>/ subdirectory
+with `git clone` and checked out (detached) at the commit recorded in the
+PluginHub-SE2 XML. Re-running this script re-clones a plugin whose local copy
+is not at that commit. If `git` is not available on PATH the script falls
 back to downloading a ZIP archive of that commit.
 
 Regardless of the method, the download is recorded in `Data/plugins.json`,
@@ -34,6 +34,7 @@ Examples:
     python download_plugin_source.py PluginName
 """
 
+import os
 import shutil
 import subprocess
 import sys
@@ -207,7 +208,7 @@ def _download_via_zip(
 
     # Rename extracted directory to the canonical repo name.
     for item in plugin_sources_dir.iterdir():
-        if item.is_dir() and item.name.startswith(repo) and item != dest_dir:
+        if item.is_dir() and item.name.startswith(prefix) and item != dest_dir:
             if dest_dir.exists():
                 shutil.rmtree(dest_dir)
             item.rename(dest_dir)
@@ -309,7 +310,10 @@ def download_plugin(plugin: dict) -> bool:
     # Run indexing
     print("\nIndexing plugin code...")
     index_script = SCRIPT_DIR / "index_plugin_code.py"
-    result = subprocess.run(["uv", "run", str(index_script)], cwd=SCRIPT_DIR)
+    # The indexer runs in the skill folder, where a CLAUDE.md/AGENTS.md override in
+    # the caller's CWD is not visible, so hand it the resolved folder explicitly.
+    env = dict(os.environ, SE_PLUGIN_DOWNLOAD_FOLDER=str(plugin_sources_dir))
+    result = subprocess.run(["uv", "run", str(index_script)], cwd=SCRIPT_DIR, env=env)
     if result.returncode != 0:
         print("Warning: Indexing failed", file=sys.stderr)
 

@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 # common_posix.sh - shared helpers for the POSIX (Linux) preparation
-# scripts of the se2-dev-game-code skill. Sourced by prepare.sh / clean.sh.
+# scripts of the se2-dev-game-code skill. Sourced by prepare.sh / verify_game_files.sh.
 #
 # The Windows preparation lives in Prepare.bat / Clean.bat and uses BusyBox +
 # junctions; on Linux we use the native shell + symlinks instead. The
 # Python indexing/search scripts are identical on every platform.
 
-# Steam application id of Space Engineers 2.
-SE2_APP_ID=1133870
 ILSPY_VERSION="${ILSPY_VERSION:-10.0.1.8346}"
 # Where per-user tools (ilspycmd) are installed when not already on PATH.
 SE2_TOOLS_ROOT="${SE2_TOOLS_ROOT:-$HOME/.se2-dev/tools}"

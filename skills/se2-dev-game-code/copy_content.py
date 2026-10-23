@@ -9,7 +9,7 @@ from typing import Set
 CONTENT_DST = Path('Data') / 'Content'
 
 
-def copy_content(content_root: Path, subdir: str, allowed_extensions: Set[str], exclude: Set[str] = ()):
+def copy_content(content_root: Path, subdir: str, allowed_extensions: Set[str]):
     src_dir = content_root / subdir
     if not src_dir.exists():
         print(f"Skipping {subdir} (not found)")
@@ -24,9 +24,6 @@ def copy_content(content_root: Path, subdir: str, allowed_extensions: Set[str], 
 
         src_path_ext = str(src_path).rsplit('.', 1)[-1].lower()
         if src_path_ext not in allowed_extensions:
-            continue
-
-        if any(part in exclude for part in src_path.parts):
             continue
 
         dst_path = dst_dir / src_path.relative_to(src_dir)
