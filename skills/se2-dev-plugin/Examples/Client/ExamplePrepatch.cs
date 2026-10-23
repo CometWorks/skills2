@@ -1,30 +1,32 @@
 #if DISABLED_PRELOADER_EXAMPLE
 
+using System.Linq;
 using ClientPlugin.Tools;
 using Mono.Cecil;
 
 namespace ClientPlugin.Patches;
 
 /*
-Fix of DecodePixelData in SixLabors.ImageSharp developed by @SpaceGT.
-The issue is that the original code expects `stream.Read()` to always
-returns all the bytes requested, but this is not guaranteed on .NET Core.
+Example preloader patch skeleton: finds AnalyticsSessionComponent.UpdatePlayerPosition
+in Game2.Client.dll, verifies its IL code and records it before and after patching.
+It changes nothing yet, put your IL changes where the TODO says.
+Pulsar calls it for every assembly listed in Preloader.TargetDLLs.
 */
 public static class ExamplePrepatch
 {
     public static void Prepatch(AssemblyDefinition asmDef)
     {
-        // TODO: Filter for the assembly to patch
-        if (asmDef.Name.Name != "Game2.Game.dll")
+        // TODO: Filter for the assembly to patch (a Cecil assembly name has no .dll extension)
+        if (asmDef.Name.Name != "Game2.Client")
             return;
 
-        // TODO: Filter for the type to patch
-        var decoderType = asmDef.MainModule.Types.First(t =>
-            t.FullName == "AnalyticsSessionComponent"
+        // TODO: Filter for the type to patch (FullName includes the namespace)
+        var type = asmDef.MainModule.Types.First(t =>
+            t.FullName == "Keen.Game2.Client.RuntimeSystems.Analytics.SessionComponents.AnalyticsSessionComponent"
         );
 
         // TODO: Filter for the member to patch
-        var method = decoderType.Methods.First(m =>
+        var method = type.Methods.First(m =>
             m.Name == "UpdatePlayerPosition"
         );
 
@@ -34,7 +36,7 @@ public static class ExamplePrepatch
         il.RecordOriginalCode(method);
         
         // TODO: Optional: Ensure that game's code hasn't changed.
-        il.VerifyCodeHash(method, "8e787d98");
+        il.VerifyCodeHash(method, "4e2797a2");
 
         // TODO: Change the IL code in `il` accordingly
 
