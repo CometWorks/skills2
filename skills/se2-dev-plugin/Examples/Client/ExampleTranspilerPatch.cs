@@ -41,7 +41,6 @@ public static class CharacterHUDStatusViewModelPatch
         // if another plugin loaded before yours has already patched the same method.
         // This verification can be disabled by setting this environment variable:
         // `SE2_PLUGIN_DISABLE_METHOD_VERIFICATION`
-        // This may be required on Linux if Wine/Proton is using Mono.
         // TODO: Replace the hash below with the actual hash from the .il file
         //il.VerifyCodeHash(patchedMethod, "FIXME");
 
