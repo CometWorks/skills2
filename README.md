@@ -190,3 +190,9 @@ _in alphabetical order_
 ### Legal
 
 Space Engineers 2 is a trademark of Keen Software House s.r.o.
+
+## License
+
+AGPL-3.0, see [LICENSE](LICENSE).
+
+Please contact us for alternate licensing.

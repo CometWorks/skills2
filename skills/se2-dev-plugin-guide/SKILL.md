@@ -1,7 +1,7 @@
 ---
 name: se2-dev-plugin-guide
 description: Developer guide for Space Engineers 2 plugins - starting from the client plugin template, where to learn the game's internals, patching basics, testing locally with Pulsar's Modern flavor, how players' PCs differ, filling the hub manifest XML, submitting to PluginHub-SE2, and developing with AI coding agents. Use it to answer a plugin developer's process questions or to take a plugin from template to hub release.
-license: MIT
+license: AGPL-3.0
 allowed-tools: Read
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: se2-dev
 description: High level overview of Space Engineers 2 related development. Start here to understand the ecosystem (game client, Pulsar, PluginHub-SE2) and to route to the right se2-dev-* skill for plugins, mods, and decompiled code/handbook reference.
-license: MIT
+license: AGPL-3.0
 allowed-tools: Read
 ---
 
