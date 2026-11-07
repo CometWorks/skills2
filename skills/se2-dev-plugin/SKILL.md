@@ -1,7 +1,7 @@
 ---
 name: se2-dev-plugin
 description: Plugin development for Space Engineers 2. Search plugin code from PluginHub-SE2 for examples and patterns.
-license: MIT
+license: AGPL-3.0
 allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*dotnet build*), Bash(*dotnet clean*), Bash(*uv run search_plugin_code.py *), Bash(*uv run index_plugin_code.py*), Bash(*uv run list_plugins.py*), Bash(*uv run download_plugin_source.py *), Bash(*uv run download_pluginhub.py*), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 

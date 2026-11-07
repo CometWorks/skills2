@@ -1,7 +1,7 @@
 ---
 name: se2-dev-game-code
 description: Search and read the decompiled C# code of Space Engineers 2. Use it for exact signatures, method bodies, IL and content files, and for how the game works when no handbook is installed. If the se2-dev-game-book skill is installed, read that first for how a system works overall.
-license: MIT
+license: AGPL-3.0
 allowed-tools: Read, Bash(*Prepare.bat*), Bash(*Clean.bat*), Bash(*prepare.sh*), Bash(*clean.sh*), Bash(*run_prepare.sh*), Bash(*VerifyGameFiles.bat*), Bash(*verify_game_files.sh*), Bash(*uv run hash_game_files.py *), Bash(*test_search_game_code.bat*), Bash(*test_search_game_code.sh*), Bash(*test_graphify_game_code*), Bash(*uv run test_search_code.py*), Bash(*uv run test_graphify_queries.py*), Bash(*graphify_check.sh*), Bash(*GraphifyCheck.bat*), Bash(command -v graphify*), Bash(graphify*), Bash(*GRAPHIFY_MAX_GRAPH_BYTES*), Bash(*uv run search_game_code.py *), Bash(*uv run index_code.py *), Bash(*uv run check_index.py *), Bash(*busybox* grep *), Bash(*busybox* find *), Bash(*busybox* cat *), Bash(*busybox* head *), Bash(*busybox* tail *), Bash(*busybox* ls*), Bash(*busybox* wc *), Bash(*busybox* sort *), Bash(*busybox* uniq *), Bash(*busybox* tree*), Bash(grep *), Bash(find *), Bash(cat *), Bash(head *), Bash(tail *), Bash(ls *), Bash(wc *), Bash(sort *), Bash(uniq *), Bash(tree *)
 ---
 
